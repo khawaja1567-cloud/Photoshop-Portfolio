@@ -52,6 +52,21 @@ Vercel will serve `index.html` as-is. Any time you push to `main`, it redeploys 
 - Colors, fonts, and spacing are driven by CSS variables at the top of `style.css` (`:root { ... }`) — change `--accent` there to reset the default brand color.
 - Behavior (tool switching, swatch clicks, layer toggles, mobile drawers) lives in `script.js`.
 
+## How it works now
+
+- **Single scrollable page** — no tabs. All sections (Home, Scratch Layer, Work, Skills, Resume, Contact) sit in one column inside the canvas area.
+- **Layers panel = site menu.** Clicking a layer smooth-scrolls to that section; the eye icon shows/hides it; the currently visible section is auto-highlighted as you scroll.
+- **Toolbar tools behave like real Photoshop tools**, and act on the "Scratch Layer" section, which is a real `<canvas>`:
+  - **Move (V)** — default tool.
+  - **Lasso (L)** — drag to draw a marching-ants selection marquee (visual, like Photoshop's selection preview).
+  - **Crop (C)** — drag a box, release to actually crop the scratch layer's contents to that area.
+  - **Eyedropper (I)** — click the scratch layer to sample the pixel color under your cursor; it becomes the current foreground color.
+  - **Brush (B)** / **Eraser (E)** — draw or erase on the scratch layer; size is adjustable in the Properties panel.
+  - **Type (T)** — click to drop an editable text box at that point.
+  - **Hand (H)** — drag anywhere on the page to pan/scroll.
+  - **Zoom (Z)** — click to zoom the page in, Alt+click to zoom out, double-click to reset to 100%.
+- **Swatches** set the current foreground color, used by Brush, Type, and shown by Eyedropper.
+
 ## Next steps
 
-This is the interface shell — every tool, tab, swatch, and layer is already wired to something reasonable (switch sections, recolor the accent, show/hide project cards). Let me know the specific behavior you want for each component and I'll wire it up to match.
+Everything above is functional, not just decorative — try it locally before deploying. If you want a specific tool to behave differently, tell me and I'll adjust it.

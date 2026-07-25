@@ -58,7 +58,71 @@ button, .layer-row, .swatch, .tool, .tab, .project-card, .skill-row, .contact-ro
 /* ============================================
    APP SHELL
    ============================================ */
-.app { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+.app { position: relative; z-index: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+/* ============================================
+   BACKGROUND SCENE — colorful 3D elements behind the glass panels
+   ============================================ */
+.bg-scene {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: #101014;
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: .6;
+  animation: orbFloat ease-in-out infinite;
+  will-change: transform;
+}
+.orb-a { width: 440px; height: 440px; left: -140px; top: -120px; background: radial-gradient(circle at 32% 30%, #ffc978, #d99a44 55%, transparent 75%); animation-duration: 22s; }
+.orb-b { width: 400px; height: 400px; right: -120px; top: 6%; background: radial-gradient(circle at 32% 30%, #7fd8ff, #2f7de1 55%, transparent 75%); animation-duration: 27s; animation-delay: -6s; }
+.orb-c { width: 360px; height: 360px; left: 6%; bottom: -160px; background: radial-gradient(circle at 32% 30%, #ff9bcb, #a259ff 55%, transparent 75%); animation-duration: 20s; animation-delay: -3s; }
+.orb-d { width: 320px; height: 320px; right: 10%; bottom: -140px; background: radial-gradient(circle at 32% 30%, #90f2c8, #16a37a 55%, transparent 75%); animation-duration: 25s; animation-delay: -11s; }
+
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(40px, -30px) scale(1.08); }
+  66% { transform: translate(-30px, 30px) scale(0.94); }
+}
+
+/* glossy 3D spheres for tangible depth */
+.sphere {
+  position: absolute;
+  border-radius: 50%;
+  box-shadow: 0 30px 60px rgba(0,0,0,.55), inset -12px -16px 30px rgba(0,0,0,.4), inset 6px 8px 16px rgba(255,255,255,.35);
+  animation: sphereFloat ease-in-out infinite;
+  will-change: transform;
+}
+.sphere-a {
+  width: 150px; height: 150px; left: 3%; top: 42%;
+  background: radial-gradient(circle at 30% 26%, #ffe2b0, #d99a44 45%, #7a531f 85%);
+  animation-duration: 16s;
+}
+.sphere-b {
+  width: 100px; height: 100px; right: 5%; bottom: 20%;
+  background: radial-gradient(circle at 30% 26%, #b9e6ff, #2f7de1 45%, #163f74 85%);
+  animation-duration: 19s; animation-delay: -5s;
+}
+.sphere-c {
+  width: 60px; height: 60px; right: 22%; top: 12%;
+  background: radial-gradient(circle at 30% 26%, #ffd7ec, #a259ff 45%, #4a2478 85%);
+  animation-duration: 13s; animation-delay: -2s;
+}
+
+@keyframes sphereFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-26px) rotate(10deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orb, .sphere { animation: none; }
+}
 
 .menubar {
   height: var(--menubar-h);
@@ -346,8 +410,7 @@ button, .layer-row, .swatch, .tool, .tab, .project-card, .skill-row, .contact-ro
 .panels {
   width: var(--panels-w);
   min-width: var(--panels-w);
-  background: var(--bg-2);
-  border-left: 1px solid var(--border);
+  background: transparent;
   display: flex;
   flex-direction: column;
   gap: 16px;

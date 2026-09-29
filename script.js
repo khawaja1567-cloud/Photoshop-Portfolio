@@ -1,444 +1,882 @@
-// ============================================
-// STATE
-// ============================================
-let currentTool = 'move';
-let currentColor = '#d99a44';
+"use strict";
+
+// The artwork bitmap has stable dimensions: resizing or zooming never wipes it.
+const $ = (selector, root = document) => root.querySelector(selector);
+const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+const viewport = $("#viewport");
+const pageSections = $("#pageSections");
+const root = document.documentElement;
+const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+const mobile = matchMedia("(max-width: 760px)");
+const finePointer = matchMedia("(hover: hover) and (pointer: fine)");
+const statusMsg = $("#statusMsg");
+const canvas = $("#doodleCanvas");
+const ctx = canvas.getContext("2d", { willReadFrequently: true });
+const overlay = $("#toolOverlay");
+canvas.width = 1200;
+canvas.height = 650;
+overlay.setAttribute("viewBox", `0 0 ${canvas.width} ${canvas.height}`);
+overlay.setAttribute("preserveAspectRatio", "none");
+let currentTool = "move";
+let currentColor = "#c7f28b";
 let brushSize = 8;
 let zoomLevel = 100;
-let dpr = window.devicePixelRatio || 1;
-
-const viewport = document.getElementById('viewport');
-const doodleCanvas = document.getElementById('doodleCanvas');
-const ctx = doodleCanvas.getContext('2d');
-const toolOverlay = document.getElementById('toolOverlay');
-const swatchFg = document.getElementById('swatchFg');
-const statusMsg = document.getElementById('statusMsg');
-const statusZoom = document.getElementById('statusZoom');
-const propertiesBody = document.getElementById('propertiesBody');
-const pageSections = document.getElementById('pageSections');
-
+let activePointer = null;
+let gesture = null;
+let textEditor = null;
+let toastTimer;
+let hasArtwork = false;
 const toolHints = {
-  move: 'Move tool selected — click a layer on the right to jump to it.',
-  lasso: 'Lasso — drag on the scratch layer to mark a selection.',
-  crop: 'Crop — drag a box on the scratch layer, release to crop it.',
-  eyedropper: 'Eyedropper — click the scratch layer to sample a color.',
-  brush: 'Brush — draw on the scratch layer.',
-  eraser: 'Eraser — drag on the scratch layer to erase.',
-  type: 'Type — click the scratch layer to place text.',
-  hand: 'Hand tool — drag anywhere on the page to pan.',
-  zoom: 'Zoom — click to zoom in, Alt+click to zoom out, double-click to reset.'
+  move: "Explore the layers. Find your inspiration.",
+  brush: "Draw on the playground. Ctrl / ⌘ Z to undo.",
+  eraser: "Drag over your drawing to erase.",
+  type: "Click the canvas to type. Enter to place, Escape to cancel.",
+  lasso: "Drag to preview a freehand selection; release to dismiss.",
+  crop: "Drag a rectangle to crop and fill the canvas.",
+  eyedropper: "Click your drawing to sample a color.",
+  hand: "Drag the canvas area to scroll the page.",
+  zoom: "Click empty space to zoom. Alt-click to zoom out.",
+};
+const toolNames = {
+  move: "Move",
+  brush: "Brush",
+  eraser: "Eraser",
+  type: "Type",
+  lasso: "Lasso",
+  crop: "Crop",
+  eyedropper: "Eyedropper",
+  hand: "Hand",
+  zoom: "Zoom",
 };
 
-// ============================================
-// TOOL SELECTION
-// ============================================
-const toolButtons = document.querySelectorAll('.tool[data-tool]');
-
-function setTool(tool) {
-  currentTool = tool;
-  toolButtons.forEach(b => b.classList.toggle('active', b.dataset.tool === tool));
-
-  viewport.classList.toggle('tool-hand', tool === 'hand');
-  viewport.classList.toggle('tool-zoom', tool === 'zoom');
-
-  doodleCanvas.classList.remove('cursor-crosshair', 'cursor-text', 'cursor-default');
-  if (['brush', 'eraser', 'eyedropper', 'lasso', 'crop'].includes(tool)) {
-    doodleCanvas.classList.add('cursor-crosshair');
-  } else if (tool === 'type') {
-    doodleCanvas.classList.add('cursor-text');
-  } else {
-    doodleCanvas.classList.add('cursor-default');
+function announce(message, toast = false) {
+  statusMsg.textContent = message;
+  if (toast) {
+    clearTimeout(toastTimer);
+    $("#toast").textContent = message;
+    $("#toast").classList.add("show");
+    toastTimer = setTimeout(() => $("#toast").classList.remove("show"), 3000);
   }
-
-  statusMsg.textContent = toolHints[tool] || 'Ready';
-  updatePropertiesPanel();
 }
 
-toolButtons.forEach(btn => btn.addEventListener('click', () => setTool(btn.dataset.tool)));
-
-// ============================================
-// PROPERTIES PANEL
-// ============================================
-function updatePropertiesPanel() {
-  let html = '';
-  switch (currentTool) {
-    case 'move':
-      html = `<div class="prop-hint">Auto-select: Layer. Use the Layers panel to jump between sections of the page.</div>`;
-      break;
-    case 'lasso':
-      html = `<div class="prop-row"><span>Feather</span><span>0 px</span></div>
-              <div class="prop-row"><span>Anti-alias</span><span>On</span></div>
-              <div class="prop-hint">Drag on the scratch layer to draw a selection marquee.</div>`;
-      break;
-    case 'crop':
-      html = `<div class="prop-row"><span>Ratio</span><span>Freeform</span></div>
-              <div class="prop-hint">Drag a box on the scratch layer, then release to crop it to that area.</div>`;
-      break;
-    case 'eyedropper':
-      html = `<div class="prop-row"><span>Sample</span><span>Point</span></div>
-              <div class="prop-row"><span>Last color</span><span class="prop-color-preview" style="background:${currentColor}"></span></div>`;
-      break;
-    case 'brush':
-    case 'eraser':
-      html = `<div class="prop-row"><span>Size</span><span id="brushSizeReadout">${brushSize}px</span></div>
-              <input type="range" min="2" max="40" value="${brushSize}" class="prop-slider" id="brushSizeInput">
-              <div class="prop-row"><span>Hardness</span><span>100%</span></div>
-              ${currentTool === 'brush' ? `<div class="prop-row"><span>Color</span><span class="prop-color-preview" style="background:${currentColor}"></span></div>` : ''}`;
-      break;
-    case 'type':
-      html = `<div class="prop-row"><span>Font</span><span>Space Grotesk</span></div>
-              <div class="prop-row"><span>Size</span><span>20px</span></div>
-              <div class="prop-row"><span>Color</span><span class="prop-color-preview" style="background:${currentColor}"></span></div>`;
-      break;
-    case 'hand':
-      html = `<div class="prop-hint">Drag anywhere on the page to pan. Scroll works as usual too.</div>`;
-      break;
-    case 'zoom':
-      html = `<div class="prop-row"><span>Zoom</span><span id="propZoomReadout">${zoomLevel}%</span></div>
-              <div class="prop-hint">Click the page to zoom in. Hold Alt and click to zoom out.</div>`;
-      break;
+// Only the workspace mood is persisted. Drawing history stays in this tab.
+const themes = {
+  sage: { accent: "#c7f28b", rgb: "199,242,139", a: "#3b6349", b: "#827849" },
+  violet: { accent: "#c5b4ff", rgb: "197,180,255", a: "#504d83", b: "#80637c" },
+  blue: { accent: "#9cdcff", rgb: "156,220,255", a: "#32667c", b: "#4c7488" },
+};
+function savePreference(key, value) {
+  try {
+    localStorage.setItem(`jawad-workspace-${key}`, value);
+  } catch {
+    /* Private mode remains fully usable. */
   }
-  propertiesBody.innerHTML = html;
+}
+function readPreference(key) {
+  try {
+    return localStorage.getItem(`jawad-workspace-${key}`);
+  } catch {
+    return null;
+  }
+}
+function setTheme(name) {
+  const theme = themes[name] || themes.sage;
+  root.style.setProperty("--accent", theme.accent);
+  root.style.setProperty("--accent-rgb", theme.rgb);
+  root.style.setProperty("--accent-soft", `rgba(${theme.rgb},.12)`);
+  root.style.setProperty("--scene-a", theme.a);
+  root.style.setProperty("--scene-b", theme.b);
+  $$(".theme-chip").forEach((button) => {
+    const selected = button.dataset.theme === name;
+    button.classList.toggle("active", selected);
+    button.setAttribute("aria-pressed", String(selected));
+  });
+  savePreference("theme", name);
+}
+$$(".theme-chip").forEach((button) =>
+  button.addEventListener("click", () => setTheme(button.dataset.theme)),
+);
+function setFrost(value) {
+  const frost = Math.max(8, Math.min(32, Number(value) || 20));
+  root.style.setProperty("--glass-blur", `${frost}px`);
+  $("#frostRange").value = frost;
+  $("#frostOutput").value = frost;
+  savePreference("frost", String(frost));
+}
+$("#frostRange").addEventListener("input", (event) =>
+  setFrost(event.target.value),
+);
+setTheme(
+  Object.hasOwn(themes, readPreference("theme"))
+    ? readPreference("theme")
+    : "sage",
+);
+setFrost(readPreference("frost"));
 
-  const slider = document.getElementById('brushSizeInput');
-  if (slider) {
-    slider.addEventListener('input', (e) => {
-      brushSize = Number(e.target.value);
-      const readout = document.getElementById('brushSizeReadout');
-      if (readout) readout.textContent = brushSize + 'px';
+// Section navigation and layer visibility use real links and buttons.
+const sectionEls = $$(".page-section");
+const layerRows = $$(".layer-row");
+function showSection(section) {
+  section.classList.remove("section-hidden");
+  const row = $(`.layer-row[data-target="${section.id}"]`);
+  if (row) {
+    row.classList.remove("dimmed");
+    $(".layer-eye", row).setAttribute("aria-pressed", "true");
+    $(".layer-eye", row).setAttribute(
+      "aria-label",
+      `Hide ${$(".layer-link>span:nth-child(2)", row).textContent}`,
+    );
+  }
+}
+function navigateTo(id, updateHash = true) {
+  const section = document.getElementById(id);
+  if (!section || !section.classList.contains("page-section")) return;
+  showSection(section);
+  closeMobilePanels(false);
+  section.scrollIntoView({
+    behavior: reducedMotion.matches ? "auto" : "smooth",
+    block: "start",
+  });
+  // Make keyboard navigation land in the content, including after drawer closure.
+  section.setAttribute("tabindex", "-1");
+  section.focus({ preventScroll: true });
+  if (updateHash) {
+    try {
+      history.replaceState(null, "", `#${id}`);
+    } catch {
+      /* file:// fallback */
+    }
+  }
+  updateActiveSection(id);
+}
+$$('a[href^="#section-"]').forEach((link) =>
+  link.addEventListener("click", (event) => {
+    event.preventDefault();
+    navigateTo(link.hash.slice(1));
+  }),
+);
+layerRows.forEach((row) => {
+  const button = $(".layer-eye", row);
+  const section = document.getElementById(row.dataset.target);
+  const label = $(".layer-link>span:nth-child(2)", row).textContent;
+  button.addEventListener("click", () => {
+    const visible = !section.classList.contains("section-hidden");
+    if (
+      visible &&
+      sectionEls.filter((item) => !item.classList.contains("section-hidden"))
+        .length === 1
+    ) {
+      announce("Keep at least one layer visible.", true);
+      return;
+    }
+    if (section.id === "section-scratch") commitText();
+    section.classList.toggle("section-hidden", visible);
+    row.classList.toggle("dimmed", visible);
+    button.setAttribute("aria-pressed", String(!visible));
+    button.setAttribute("aria-label", `${visible ? "Show" : "Hide"} ${label}`);
+    announce(`${visible ? "Hidden" : "Restored"} layer: ${label}`);
+    updateScrollSpy();
+  });
+});
+function updateActiveSection(id) {
+  layerRows.forEach((row) => {
+    const active = row.dataset.target === id;
+    row.classList.toggle("active-layer", active);
+    const link = $(".layer-link", row);
+    if (active) {
+      link.setAttribute("aria-current", "location");
+      $("#activeLayerLabel").textContent = $(
+        "span:nth-child(2)",
+        link,
+      ).textContent;
+    } else link.removeAttribute("aria-current");
+  });
+  $$(".menu-items a").forEach((link) => {
+    const active = link.hash === `#${id}`;
+    link.classList.toggle("active", active);
+    if (active) link.setAttribute("aria-current", "location");
+    else link.removeAttribute("aria-current");
+  });
+}
+let scrollFrame = 0;
+function updateScrollSpy() {
+  const visible = sectionEls.filter(
+    (section) => !section.classList.contains("section-hidden"),
+  );
+  if (!visible.length) return;
+  const top =
+    viewport.getBoundingClientRect().top +
+    Math.min(140, viewport.clientHeight * 0.25);
+  let active = visible[0];
+  for (const section of visible) {
+    if (section.getBoundingClientRect().top <= top) active = section;
+  }
+  if (viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight < 5)
+    active = visible.at(-1);
+  updateActiveSection(active.id);
+}
+viewport.addEventListener(
+  "scroll",
+  () => {
+    if (scrollFrame) return;
+    scrollFrame = requestAnimationFrame(() => {
+      updateScrollSpy();
+      scrollFrame = 0;
     });
-  }
+  },
+  { passive: true },
+);
+
+// Small-screen drawers: mutually exclusive, inert when closed, Escape and focus trap.
+const toolbar = $("#toolbar");
+const panels = $("#panels");
+const mobileOverlay = $("#mobileOverlay");
+const drawerToggles = [$("#mobileToggleLeft"), $("#mobileToggleRight")];
+let activeDrawer = null;
+let drawerOpener = null;
+function closeMobilePanels(restoreFocus = true) {
+  const opener = drawerOpener;
+  const wasOpen = Boolean(activeDrawer);
+  toolbar.classList.remove("open");
+  panels.classList.remove("open");
+  mobileOverlay.classList.remove("show");
+  drawerToggles.forEach((button) =>
+    button.setAttribute("aria-expanded", "false"),
+  );
+  toolbar.inert = mobile.matches;
+  panels.inert = mobile.matches;
+  $("#main").inert = false;
+  activeDrawer = null;
+  drawerOpener = null;
+  if (restoreFocus && wasOpen && opener) opener.focus({ preventScroll: true });
 }
-
-// ============================================
-// SWATCHES — set current color (used by brush / type / eyedropper readout)
-// ============================================
-const swatches = document.querySelectorAll('.swatch');
-const skillRows = document.querySelectorAll('.skill-row');
-const root = document.documentElement;
-const defaultAccent = '#d99a44';
-
-function hexToSoft(hex) {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  return `rgba(${r}, ${g}, ${b}, 0.16)`;
-}
-
-function setCurrentColor(hex, label) {
-  currentColor = hex;
-  root.style.setProperty('--accent', hex);
-  root.style.setProperty('--accent-soft', hexToSoft(hex));
-  if (swatchFg) swatchFg.style.background = hex;
-  swatches.forEach(s => s.classList.remove('selected'));
-  if (label) statusMsg.textContent = `Foreground color set — ${label}`;
-  updatePropertiesPanel();
-}
-
-swatches.forEach(sw => {
-  const color = getComputedStyle(sw).getPropertyValue('--sw').trim();
-  sw.addEventListener('click', () => {
-    if (sw.dataset.color === 'default') {
-      setCurrentColor(defaultAccent, 'reset');
-    } else {
-      setCurrentColor(color, sw.dataset.tooltip);
-      sw.classList.add('selected');
-    }
-  });
-  sw.addEventListener('mouseenter', () => {
-    skillRows.forEach(row => row.classList.toggle('lit', row.dataset.color === sw.dataset.color));
-  });
-  sw.addEventListener('mouseleave', () => {
-    skillRows.forEach(row => row.classList.remove('lit'));
-  });
-});
-
-// ============================================
-// LAYERS PANEL — acts as the site menu
-// ============================================
-const layerRows = document.querySelectorAll('.layer-row');
-
-layerRows.forEach(row => {
-  const eye = row.querySelector('.layer-eye');
-  const target = document.getElementById(row.dataset.target);
-
-  eye.addEventListener('click', (e) => {
-    e.stopPropagation();
-    row.classList.toggle('dimmed');
-    if (target) target.classList.toggle('section-hidden');
-    statusMsg.textContent = row.classList.contains('dimmed')
-      ? `Hid layer — ${row.querySelector('.layer-name').textContent}`
-      : `Showed layer — ${row.querySelector('.layer-name').textContent}`;
-  });
-
-  row.addEventListener('click', () => {
-    if (target) {
-      target.classList.remove('section-hidden');
-      row.classList.remove('dimmed');
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  });
-});
-
-// scrollspy: highlight the layer row matching the section in view
-const sectionEls = document.querySelectorAll('.page-section');
-const spy = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      const row = document.querySelector(`.layer-row[data-target="${entry.target.id}"]`);
-      if (row) {
-        layerRows.forEach(r => r.classList.remove('active-layer'));
-        row.classList.add('active-layer');
-      }
-    }
-  });
-}, { root: viewport, threshold: 0.5 });
-sectionEls.forEach(sec => spy.observe(sec));
-
-// ============================================
-// SCRATCH CANVAS — brush / eraser / type / eyedropper / lasso / crop
-// ============================================
-function resizeCanvas() {
-  dpr = window.devicePixelRatio || 1;
-  const rect = doodleCanvas.getBoundingClientRect();
-  doodleCanvas.width = Math.max(1, rect.width * dpr);
-  doodleCanvas.height = Math.max(1, rect.height * dpr);
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  toolOverlay.setAttribute('viewBox', `0 0 ${rect.width} ${rect.height}`);
-}
-window.addEventListener('resize', () => { resizeCanvas(); });
-resizeCanvas();
-
-function getPos(e) {
-  const rect = doodleCanvas.getBoundingClientRect();
-  return { x: e.clientX - rect.left, y: e.clientY - rect.top };
-}
-
-let isDrawing = false;
-let lastPos = null;
-let isLassoing = false;
-let lassoPoints = [];
-let isCropping = false;
-let cropStart = null;
-
-function clearOverlay() { toolOverlay.innerHTML = ''; }
-
-doodleCanvas.addEventListener('pointerdown', (e) => {
-  if (currentTool === 'hand' || currentTool === 'zoom') return;
-  const pos = getPos(e);
-
-  if (currentTool === 'brush' || currentTool === 'eraser') {
-    isDrawing = true;
-    lastPos = pos;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-  } else if (currentTool === 'eyedropper') {
-    sampleColor(pos);
-  } else if (currentTool === 'type') {
-    addTypeBox(pos);
-  } else if (currentTool === 'lasso') {
-    isLassoing = true;
-    lassoPoints = [pos];
-  } else if (currentTool === 'crop') {
-    isCropping = true;
-    cropStart = pos;
-  }
-});
-
-doodleCanvas.addEventListener('pointermove', (e) => {
-  const pos = getPos(e);
-
-  if (isDrawing && (currentTool === 'brush' || currentTool === 'eraser')) {
-    ctx.beginPath();
-    ctx.moveTo(lastPos.x, lastPos.y);
-    ctx.lineTo(pos.x, pos.y);
-    ctx.lineWidth = brushSize;
-    if (currentTool === 'eraser') {
-      ctx.globalCompositeOperation = 'destination-out';
-      ctx.strokeStyle = 'rgba(0,0,0,1)';
-    } else {
-      ctx.globalCompositeOperation = 'source-over';
-      ctx.strokeStyle = currentColor;
-    }
-    ctx.stroke();
-    lastPos = pos;
-  } else if (isLassoing) {
-    lassoPoints.push(pos);
-    drawLassoOverlay();
-  } else if (isCropping) {
-    drawCropOverlay(cropStart, pos);
-  }
-});
-
-function endDrawing() {
-  if (isDrawing) {
-    isDrawing = false;
-    ctx.globalCompositeOperation = 'source-over';
-  }
-  if (isLassoing) {
-    isLassoing = false;
-    setTimeout(clearOverlay, 900);
-  }
-  if (isCropping && cropStart) {
-    isCropping = false;
-  }
-}
-
-doodleCanvas.addEventListener('pointerup', (e) => {
-  if (currentTool === 'crop' && cropStart) {
-    const pos = getPos(e);
-    applyCrop(cropStart, pos);
-    clearOverlay();
-  }
-  endDrawing();
-});
-doodleCanvas.addEventListener('pointerleave', endDrawing);
-
-function drawLassoOverlay() {
-  const d = lassoPoints.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ');
-  toolOverlay.innerHTML = `<path class="marquee-lasso" d="${d}" fill="none"></path>`;
-}
-
-function drawCropOverlay(start, end) {
-  const x = Math.min(start.x, end.x);
-  const y = Math.min(start.y, end.y);
-  const w = Math.abs(end.x - start.x);
-  const h = Math.abs(end.y - start.y);
-  toolOverlay.innerHTML = `<rect class="marquee-rect" x="${x}" y="${y}" width="${w}" height="${h}"></rect>`;
-}
-
-function applyCrop(start, end) {
-  const x0 = Math.min(start.x, end.x) * dpr;
-  const y0 = Math.min(start.y, end.y) * dpr;
-  const w = Math.abs(end.x - start.x) * dpr;
-  const h = Math.abs(end.y - start.y) * dpr;
-  if (w < 12 || h < 12) return;
-
-  const imgData = ctx.getImageData(x0, y0, w, h);
-  const tmp = document.createElement('canvas');
-  tmp.width = w;
-  tmp.height = h;
-  tmp.getContext('2d').putImageData(imgData, 0, 0);
-
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.clearRect(0, 0, doodleCanvas.width, doodleCanvas.height);
-  ctx.drawImage(tmp, 0, 0, w, h, 0, 0, doodleCanvas.width, doodleCanvas.height);
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  statusMsg.textContent = 'Cropped scratch layer to selection.';
-}
-
-function sampleColor(pos) {
-  const data = ctx.getImageData(pos.x * dpr, pos.y * dpr, 1, 1).data;
-  if (data[3] === 0) {
-    statusMsg.textContent = 'Sampled transparent pixel — draw something first.';
+function openDrawer(drawer, opener) {
+  if (activeDrawer === drawer) {
+    closeMobilePanels();
     return;
   }
-  const hex = '#' + [data[0], data[1], data[2]].map(v => v.toString(16).padStart(2, '0')).join('');
-  setCurrentColor(hex, `sampled ${hex}`);
+  closeMobilePanels(false);
+  activeDrawer = drawer;
+  drawerOpener = opener;
+  drawer.inert = false;
+  drawer.classList.add("open");
+  mobileOverlay.classList.add("show");
+  opener.setAttribute("aria-expanded", "true");
+  $("#main").inert = true;
+  $("button,a,input", drawer)?.focus({ preventScroll: true });
 }
+drawerToggles[0].addEventListener("click", () =>
+  openDrawer(toolbar, drawerToggles[0]),
+);
+drawerToggles[1].addEventListener("click", () =>
+  openDrawer(panels, drawerToggles[1]),
+);
+mobileOverlay.addEventListener("click", () => closeMobilePanels());
+mobile.addEventListener("change", () => closeMobilePanels());
+closeMobilePanels(false);
 
-let typeBoxCount = 0;
-function addTypeBox(pos) {
-  const box = document.createElement('div');
-  box.className = 'type-box';
-  box.contentEditable = 'true';
-  box.style.left = pos.x + 'px';
-  box.style.top = pos.y + 'px';
-  box.style.color = currentColor;
-  box.dataset.id = ++typeBoxCount;
-  doodleCanvas.parentElement.appendChild(box);
-  box.focus();
-  box.addEventListener('blur', () => {
-    if (!box.textContent.trim()) box.remove();
+// Filterable project cards and a native dialog (focus trap, Escape, focus return).
+const cards = $$(".project-card");
+$$(".filter").forEach((button) =>
+  button.addEventListener("click", () => {
+    const filter = button.dataset.filter;
+    $$(".filter").forEach((item) => {
+      const selected = item === button;
+      item.classList.toggle("active", selected);
+      item.setAttribute("aria-pressed", String(selected));
+    });
+    cards.forEach((card) => {
+      card.hidden = filter !== "all" && card.dataset.category !== filter;
+    });
+    const count = cards.filter((card) => !card.hidden).length;
+    $("#projectCount").textContent =
+      `${count} PROJECT${count === 1 ? "" : "S"}`;
+  }),
+);
+const projectDialog = $("#projectDialog");
+let lastProjectOpener;
+$$(".project-open").forEach((button) =>
+  button.addEventListener("click", () => {
+    lastProjectOpener = button;
+    const art = $(".project-art", button).cloneNode(true);
+    $("#dialogArt").replaceChildren(art);
+    $("#dialogTitle").textContent = $("h3", button).childNodes[0].textContent;
+    $("#dialogCategory").textContent = $(
+      ".project-meta>span",
+      button,
+    ).textContent;
+    $("#dialogDescription").textContent = $(
+      ".project-body>p",
+      button,
+    ).textContent;
+    projectDialog.showModal();
+  }),
+);
+$("#closeProjectBtn").addEventListener("click", () => projectDialog.close());
+projectDialog.addEventListener("click", (event) => {
+  const rect = projectDialog.getBoundingClientRect();
+  if (
+    event.target === projectDialog &&
+    (event.clientX < rect.left ||
+      event.clientX > rect.right ||
+      event.clientY < rect.top ||
+      event.clientY > rect.bottom)
+  )
+    projectDialog.close();
+});
+projectDialog.addEventListener("close", () =>
+  lastProjectOpener?.focus({ preventScroll: true }),
+);
+
+// Pointer highlights are local, inexpensive and disabled for touch/reduced motion.
+$$(".project-card,.skill-row,#heroArtboard").forEach((surface) => {
+  let frame = 0;
+  surface.addEventListener("pointermove", (event) => {
+    if (!finePointer.matches || reducedMotion.matches || frame) return;
+    const { clientX, clientY } = event;
+    frame = requestAnimationFrame(() => {
+      const rect = surface.getBoundingClientRect();
+      surface.style.setProperty("--mouse-x", `${clientX - rect.left}px`);
+      surface.style.setProperty("--mouse-y", `${clientY - rect.top}px`);
+      if (surface.id === "heroArtboard") {
+        surface.style.setProperty(
+          "--tilt-x",
+          `${((clientY - rect.top) / rect.height - 0.5) * -7}deg`,
+        );
+        surface.style.setProperty(
+          "--tilt-y",
+          `${((clientX - rect.left) / rect.width - 0.5) * 7}deg`,
+        );
+      }
+      frame = 0;
+    });
   });
-}
-
-document.getElementById('clearCanvasBtn').addEventListener('click', () => {
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.clearRect(0, 0, doodleCanvas.width, doodleCanvas.height);
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  document.querySelectorAll('.type-box').forEach(t => t.remove());
-  statusMsg.textContent = 'Scratch layer cleared.';
+  surface.addEventListener("pointerleave", () => {
+    cancelAnimationFrame(frame);
+    frame = 0;
+    surface.style.setProperty("--tilt-x", "0deg");
+    surface.style.setProperty("--tilt-y", "0deg");
+  });
 });
 
-// ============================================
-// HAND TOOL — drag to pan the whole page
-// ============================================
-let isPanning = false;
-let panStart = { x: 0, y: 0, scrollTop: 0, scrollLeft: 0 };
-
-viewport.addEventListener('pointerdown', (e) => {
-  if (currentTool !== 'hand') return;
-  isPanning = true;
-  viewport.classList.add('panning');
-  panStart = { x: e.clientX, y: e.clientY, scrollTop: viewport.scrollTop, scrollLeft: viewport.scrollLeft };
-});
-window.addEventListener('pointermove', (e) => {
-  if (!isPanning) return;
-  viewport.scrollTop = panStart.scrollTop - (e.clientY - panStart.y);
-  viewport.scrollLeft = panStart.scrollLeft - (e.clientX - panStart.x);
-});
-window.addEventListener('pointerup', () => {
-  isPanning = false;
-  viewport.classList.remove('panning');
-});
-
-// ============================================
-// ZOOM TOOL
-// ============================================
-function applyZoom() {
-  pageSections.style.zoom = zoomLevel + '%';
-  statusZoom.textContent = zoomLevel + '%';
-  const readout = document.getElementById('propZoomReadout');
-  if (readout) readout.textContent = zoomLevel + '%';
-}
-
-viewport.addEventListener('click', (e) => {
-  if (currentTool !== 'zoom') return;
-  if (e.altKey) {
-    zoomLevel = Math.max(50, zoomLevel - 10);
-  } else {
-    zoomLevel = Math.min(200, zoomLevel + 10);
+function updatePropertiesPanel() {
+  $("#propertyTool").textContent = toolNames[currentTool];
+  const body = $("#propertiesBody");
+  body.replaceChildren();
+  if (currentTool === "brush" || currentTool === "eraser") {
+    const row = document.createElement("label");
+    row.className = "prop-row";
+    row.htmlFor = "brushSizeInput";
+    row.innerHTML = `<span>Brush size</span><span id="brushSizeReadout">${brushSize} px</span>`;
+    const slider = document.createElement("input");
+    Object.assign(slider, {
+      type: "range",
+      id: "brushSizeInput",
+      min: "2",
+      max: "60",
+      value: String(brushSize),
+      className: "prop-slider",
+    });
+    slider.addEventListener("input", (event) =>
+      setBrushSize(event.target.value),
+    );
+    body.append(row, slider);
   }
-  applyZoom();
-});
-viewport.addEventListener('dblclick', () => {
-  if (currentTool !== 'zoom') return;
-  zoomLevel = 100;
-  applyZoom();
-});
-viewport.addEventListener('mousemove', (e) => {
-  if (currentTool === 'zoom') viewport.classList.toggle('zoom-out-mode', e.altKey);
-});
-
-// ============================================
-// MOBILE PANEL TOGGLES
-// ============================================
-const toolbarEl = document.getElementById('toolbar');
-const panelsEl = document.getElementById('panels');
-const overlayEl = document.getElementById('mobileOverlay');
-const toggleLeft = document.getElementById('mobileToggleLeft');
-const toggleRight = document.getElementById('mobileToggleRight');
-
-function closeMobilePanels() {
-  toolbarEl.classList.remove('open');
-  panelsEl.classList.remove('open');
-  overlayEl.classList.remove('show');
+  const hint = document.createElement("p");
+  hint.className = "prop-hint";
+  hint.textContent = toolHints[currentTool];
+  body.append(hint);
 }
-toggleLeft.addEventListener('click', () => {
-  const opening = !toolbarEl.classList.contains('open');
-  closeMobilePanels();
-  if (opening) { toolbarEl.classList.add('open'); overlayEl.classList.add('show'); }
+function setTool(tool, navigate = false) {
+  if (!Object.hasOwn(toolHints, tool)) return;
+  commitText();
+  currentTool = tool;
+  const drawing = !["move", "hand", "zoom"].includes(tool);
+  $$(".tool[data-tool],[data-quick-tool]").forEach((button) => {
+    const active = (button.dataset.tool || button.dataset.quickTool) === tool;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+  viewport.classList.toggle("tool-hand", tool === "hand");
+  viewport.classList.toggle("tool-zoom", tool === "zoom");
+  canvas.classList.toggle("drawing-tool", drawing);
+  canvas.className = `${drawing ? "drawing-tool " : ""}${tool === "type" ? "cursor-text" : drawing ? "cursor-crosshair" : "cursor-default"}`;
+  $("#scratchToolName").textContent = `${toolNames[tool].toUpperCase()} TOOL`;
+  announce(toolHints[tool]);
+  updatePropertiesPanel();
+  if (navigate && drawing) navigateTo("section-scratch");
+  else if (activeDrawer) closeMobilePanels();
+}
+$$(".tool[data-tool],[data-quick-tool]").forEach((button) =>
+  button.addEventListener("click", () =>
+    setTool(
+      button.dataset.tool || button.dataset.quickTool,
+      Boolean(button.dataset.tool),
+    ),
+  ),
+);
+function setBrushSize(value) {
+  brushSize = Math.max(2, Math.min(60, Number(value) || 8));
+  $("#quickBrushSize").value = brushSize;
+  $("#quickBrushReadout").value = `${brushSize} px`;
+  if ($("#brushSizeInput")) $("#brushSizeInput").value = brushSize;
+  if ($("#brushSizeReadout"))
+    $("#brushSizeReadout").textContent = `${brushSize} px`;
+}
+$("#quickBrushSize").addEventListener("input", (event) =>
+  setBrushSize(event.target.value),
+);
+function setCurrentColor(hex, label, announceChange = true) {
+  currentColor = hex;
+  $("#swatchFg").style.background = hex;
+  $("#currentColorDot").style.background = hex;
+  $("#colorHex").textContent = hex.toUpperCase();
+  $$(".swatch").forEach((button) => {
+    const selected = button.dataset.hex.toLowerCase() === hex.toLowerCase();
+    button.classList.toggle("selected", selected);
+    button.setAttribute("aria-pressed", String(selected));
+  });
+  if (announceChange) announce(`Drawing color: ${label || hex}`);
+}
+$$(".swatch").forEach((button) => {
+  button.addEventListener("click", () =>
+    setCurrentColor(button.dataset.hex, button.getAttribute("aria-label")),
+  );
+  const highlight = (active) =>
+    $$(".skill-row").forEach((row) =>
+      row.classList.toggle(
+        "lit",
+        active && row.dataset.color === button.dataset.color,
+      ),
+    );
+  button.addEventListener("pointerenter", () => highlight(true));
+  button.addEventListener("pointerleave", () => highlight(false));
+  button.addEventListener("focus", () => highlight(true));
+  button.addEventListener("blur", () => highlight(false));
 });
-toggleRight.addEventListener('click', () => {
-  const opening = !panelsEl.classList.contains('open');
-  closeMobilePanels();
-  if (opening) { panelsEl.classList.add('open'); overlayEl.classList.add('show'); }
-});
-overlayEl.addEventListener('click', closeMobilePanels);
 
-// ============================================
-// INIT
-// ============================================
-setTool('move');
-setCurrentColor(currentColor, null);
+// Bounded, synchronous bitmap history avoids asynchronous undo races.
+const undoStates = [];
+const redoStates = [];
+const HISTORY_LIMIT = 16;
+function snapshot() {
+  return {
+    pixels: ctx.getImageData(0, 0, canvas.width, canvas.height),
+    hasArtwork,
+  };
+}
+function beforeEdit() {
+  undoStates.push(snapshot());
+  if (undoStates.length > HISTORY_LIMIT) undoStates.shift();
+  redoStates.length = 0;
+}
+function syncCanvasUI() {
+  $("#undoBtn").disabled = undoStates.length === 0;
+  $("#redoBtn").disabled = redoStates.length === 0;
+  $("#scratchPlaceholder").hidden = hasArtwork || Boolean(textEditor);
+}
+function restoreSnapshot(state) {
+  ctx.globalCompositeOperation = "source-over";
+  ctx.putImageData(state.pixels, 0, 0);
+  hasArtwork = state.hasArtwork;
+  overlay.replaceChildren();
+  syncCanvasUI();
+}
+function undo() {
+  commitText();
+  if (!undoStates.length || gesture) return;
+  redoStates.push(snapshot());
+  restoreSnapshot(undoStates.pop());
+  announce("Undid the last drawing action.");
+}
+function redo() {
+  if (!redoStates.length || gesture) return;
+  undoStates.push(snapshot());
+  restoreSnapshot(redoStates.pop());
+  announce("Restored the drawing action.");
+}
+$("#undoBtn").addEventListener("click", undo);
+$("#redoBtn").addEventListener("click", redo);
+function getPos(event) {
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: Math.max(
+      0,
+      Math.min(
+        canvas.width - 1,
+        ((event.clientX - rect.left) * canvas.width) / rect.width,
+      ),
+    ),
+    y: Math.max(
+      0,
+      Math.min(
+        canvas.height - 1,
+        ((event.clientY - rect.top) * canvas.height) / rect.height,
+      ),
+    ),
+  };
+}
+function paint(from, to, dot = false) {
+  ctx.globalCompositeOperation =
+    currentTool === "eraser" ? "destination-out" : "source-over";
+  ctx.fillStyle = ctx.strokeStyle = currentColor;
+  // Account for rendered width, including workspace zoom.
+  ctx.lineWidth =
+    (brushSize * canvas.width) / canvas.getBoundingClientRect().width;
+  ctx.lineCap = ctx.lineJoin = "round";
+  ctx.beginPath();
+  if (dot) {
+    ctx.arc(to.x, to.y, ctx.lineWidth / 2, 0, Math.PI * 2);
+    ctx.fill();
+  } else {
+    ctx.moveTo(from.x, from.y);
+    ctx.lineTo(to.x, to.y);
+    ctx.stroke();
+  }
+}
+function drawSelection() {
+  if (!gesture) return;
+  const { start, last, points } = gesture;
+  if (currentTool === "lasso") {
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("class", "marquee-lasso");
+    path.setAttribute(
+      "d",
+      points
+        .map((point, i) => `${i ? "L" : "M"}${point.x},${point.y}`)
+        .join(" ") + " Z",
+    );
+    overlay.replaceChildren(path);
+  } else if (currentTool === "crop") {
+    const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    rect.setAttribute("class", "marquee-rect");
+    for (const [key, value] of Object.entries({
+      x: Math.min(start.x, last.x),
+      y: Math.min(start.y, last.y),
+      width: Math.abs(last.x - start.x),
+      height: Math.abs(last.y - start.y),
+    }))
+      rect.setAttribute(key, value);
+    overlay.replaceChildren(rect);
+  }
+}
+canvas.addEventListener("pointerdown", (event) => {
+  if (
+    event.button !== 0 ||
+    activePointer !== null ||
+    ["move", "hand", "zoom"].includes(currentTool)
+  )
+    return;
+  event.preventDefault();
+  commitText();
+  const pos = getPos(event);
+  if (currentTool === "type") {
+    addTypeBox(pos);
+    return;
+  }
+  if (currentTool === "eyedropper") {
+    const data = ctx.getImageData(
+      Math.floor(pos.x),
+      Math.floor(pos.y),
+      1,
+      1,
+    ).data;
+    if (!data[3]) {
+      announce("That pixel is transparent. Sample a painted area.", true);
+      return;
+    }
+    setCurrentColor(
+      "#" +
+        [...data]
+          .slice(0, 3)
+          .map((value) => value.toString(16).padStart(2, "0"))
+          .join(""),
+    );
+    return;
+  }
+  activePointer = event.pointerId;
+  canvas.setPointerCapture(activePointer);
+  gesture = { start: pos, last: pos, points: [pos] };
+  if (currentTool === "brush" || currentTool === "eraser") {
+    beforeEdit();
+    paint(pos, pos, true);
+    hasArtwork = true;
+    syncCanvasUI();
+  }
+});
+canvas.addEventListener("pointermove", (event) => {
+  if (activePointer !== event.pointerId || !gesture) return;
+  const pos = getPos(event);
+  if (currentTool === "brush" || currentTool === "eraser")
+    paint(gesture.last, pos);
+  gesture.last = pos;
+  if (currentTool === "lasso") gesture.points.push(pos);
+  drawSelection();
+});
+function finishGesture(event, cancelled = false) {
+  if (event.pointerId !== activePointer || !gesture) return;
+  if (currentTool === "crop" && !cancelled) {
+    const end = getPos(event);
+    const x = Math.floor(Math.min(gesture.start.x, end.x));
+    const y = Math.floor(Math.min(gesture.start.y, end.y));
+    const width = Math.floor(Math.abs(end.x - gesture.start.x));
+    const height = Math.floor(Math.abs(end.y - gesture.start.y));
+    if (width > 10 && height > 10) {
+      beforeEdit();
+      const crop = document.createElement("canvas");
+      crop.width = width;
+      crop.height = height;
+      crop
+        .getContext("2d")
+        .drawImage(canvas, x, y, width, height, 0, 0, width, height);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(crop, 0, 0, canvas.width, canvas.height);
+      announce("Cropped drawing. Undo is available.");
+    }
+  }
+  if (canvas.hasPointerCapture(activePointer))
+    canvas.releasePointerCapture(activePointer);
+  activePointer = null;
+  gesture = null;
+  ctx.globalCompositeOperation = "source-over";
+  overlay.replaceChildren();
+  syncCanvasUI();
+}
+canvas.addEventListener("pointerup", (event) => finishGesture(event));
+canvas.addEventListener("pointercancel", (event) => finishGesture(event, true));
+canvas.addEventListener("lostpointercapture", (event) => {
+  if (gesture) finishGesture(event, true);
+});
+function addTypeBox(pos) {
+  commitText();
+  const box = document.createElement("div");
+  box.className = "type-box";
+  box.contentEditable = "true";
+  box.setAttribute("role", "textbox");
+  box.setAttribute(
+    "aria-label",
+    "Canvas text. Enter to place, Shift Enter for a new line, Escape to cancel.",
+  );
+  box.style.left = `${(pos.x / canvas.width) * 100}%`;
+  box.style.top = `${(pos.y / canvas.height) * 100}%`;
+  box.style.color = currentColor;
+  const fontSize = (20 * canvas.width) / canvas.clientWidth;
+  box.style.fontSize = "20px";
+  textEditor = { box, pos, color: currentColor, fontSize };
+  $("#scratchBox").append(box);
+  syncCanvasUI();
+  box.focus();
+  box.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopPropagation();
+      commitText(true);
+      canvas.focus();
+    } else if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      commitText();
+      canvas.focus();
+    }
+  });
+  box.addEventListener("paste", (event) => {
+    event.preventDefault();
+    // Paste plain text only, with no injected HTML/styles.
+    const text = event.clipboardData?.getData("text/plain") || "";
+    const selection = getSelection();
+    if (!selection?.rangeCount) return;
+    const range = selection.getRangeAt(0);
+    range.deleteContents();
+    const node = document.createTextNode(text);
+    range.insertNode(node);
+    range.setStartAfter(node);
+    range.collapse(true);
+    selection.removeAllRanges();
+    selection.addRange(range);
+  });
+  box.addEventListener("blur", () => commitText());
+}
+function commitText(cancel = false) {
+  if (!textEditor) return;
+  const { box, pos, color, fontSize } = textEditor;
+  const text = box.innerText.trim();
+  textEditor = null;
+  if (text && !cancel) {
+    beforeEdit();
+    ctx.globalCompositeOperation = "source-over";
+    ctx.fillStyle = color;
+    ctx.font = `${fontSize}px "Space Grotesk", Arial, sans-serif`;
+    ctx.textBaseline = "top";
+    text
+      .split("\n")
+      .forEach((line, index) =>
+        ctx.fillText(line, pos.x, pos.y + index * fontSize * 1.2),
+      );
+    hasArtwork = true;
+    announce("Text placed. You can erase, undo or export it.");
+  }
+  box.remove();
+  syncCanvasUI();
+}
+canvas.addEventListener("keydown", (event) => {
+  if (event.key === "Enter" && currentTool === "type") {
+    event.preventDefault();
+    addTypeBox({ x: canvas.width * 0.2, y: canvas.height * 0.4 });
+  }
+});
+$("#clearCanvasBtn").addEventListener("click", () => {
+  commitText();
+  if (!hasArtwork) return;
+  beforeEdit();
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  overlay.replaceChildren();
+  hasArtwork = false;
+  syncCanvasUI();
+  announce("Canvas cleared. Undo will bring it back.", true);
+});
+$("#downloadCanvasBtn").addEventListener("click", () => {
+  commitText();
+  canvas.toBlob((blob) => {
+    if (!blob) {
+      announce("Unable to export. Please try again.", true);
+      return;
+    }
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "my-studio-sketch.png";
+    document.body.append(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+    announce("Your sketch is ready as a transparent PNG.", true);
+  }, "image/png");
+});
+
+// Hand and Zoom ignore links, form controls, content editing and project dialogs.
+const isInteractive = (target) =>
+  Boolean(
+    target.closest('a,button,input,select,textarea,[contenteditable="true"]'),
+  );
+let pan = null;
+viewport.addEventListener("pointerdown", (event) => {
+  if (
+    currentTool !== "hand" ||
+    event.button !== 0 ||
+    isInteractive(event.target)
+  )
+    return;
+  pan = { id: event.pointerId, y: event.clientY, top: viewport.scrollTop };
+  viewport.setPointerCapture(event.pointerId);
+  viewport.classList.add("panning");
+});
+viewport.addEventListener("pointermove", (event) => {
+  if (pan && event.pointerId === pan.id)
+    viewport.scrollTop = pan.top - (event.clientY - pan.y);
+  if (currentTool === "zoom")
+    viewport.classList.toggle("zoom-out-mode", event.altKey);
+});
+function stopPan() {
+  pan = null;
+  viewport.classList.remove("panning");
+}
+viewport.addEventListener("pointerup", stopPan);
+viewport.addEventListener("pointercancel", stopPan);
+viewport.addEventListener("lostpointercapture", stopPan);
+function applyZoom(value) {
+  commitText();
+  zoomLevel = Math.max(60, Math.min(150, value));
+  pageSections.style.zoom = zoomLevel / 100;
+  $("#statusZoom").textContent = `${zoomLevel}%`;
+  updateScrollSpy();
+}
+viewport.addEventListener("click", (event) => {
+  if (currentTool !== "zoom" || isInteractive(event.target)) return;
+  applyZoom(zoomLevel + (event.altKey ? -10 : 10));
+});
+viewport.addEventListener("dblclick", (event) => {
+  if (currentTool === "zoom" && !isInteractive(event.target)) applyZoom(100);
+});
+$("#resetZoomBtn").addEventListener("click", () => applyZoom(100));
+
+// Shortcuts only act outside editors and form fields. Native dialog behavior wins.
+document.addEventListener("keydown", (event) => {
+  if (projectDialog.open) return;
+  if (activeDrawer && event.key === "Escape") {
+    event.preventDefault();
+    closeMobilePanels();
+    return;
+  }
+  if (activeDrawer && event.key === "Tab") {
+    const focusable = $$("a,button:not(:disabled),input", activeDrawer);
+    const first = focusable[0],
+      last = focusable.at(-1);
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+    return;
+  }
+  if (event.target.closest('input,textarea,select,[contenteditable="true"]'))
+    return;
+  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
+    // Keep browser shortcuts native unless the playground is visible in the viewport.
+    const rect = $("#section-scratch").getBoundingClientRect();
+    const view = viewport.getBoundingClientRect();
+    if (
+      !$("#section-scratch").classList.contains("section-hidden") &&
+      rect.bottom > view.top &&
+      rect.top < view.bottom
+    ) {
+      event.preventDefault();
+      event.shiftKey ? redo() : undo();
+    }
+    return;
+  }
+  if (event.ctrlKey || event.metaKey || event.altKey || event.repeat || gesture)
+    return;
+  const shortcuts = {
+    v: "move",
+    b: "brush",
+    e: "eraser",
+    t: "type",
+    l: "lasso",
+    c: "crop",
+    i: "eyedropper",
+    h: "hand",
+    z: "zoom",
+  };
+  const tool = shortcuts[event.key.toLowerCase()];
+  if (tool) {
+    event.preventDefault();
+    setTool(tool, true);
+  }
+});
+$("#copyEmailBtn").addEventListener("click", async () => {
+  const email = "khawaja1567@gmail.com";
+  try {
+    if (!navigator.clipboard || !window.isSecureContext)
+      throw new Error("Clipboard unavailable");
+    await navigator.clipboard.writeText(email);
+    announce("Email address copied. Let’s make something good.", true);
+  } catch {
+    const selection = window.getSelection();
+    const range = document.createRange();
+    range.selectNodeContents($(".contact-primary>a").firstChild);
+    selection.removeAllRanges();
+    selection.addRange(range);
+    announce("Email selected. Press Ctrl / ⌘ C to copy.", true);
+  }
+});
+$("#year").textContent = new Date().getFullYear();
+setTool("move");
+setCurrentColor(currentColor, null, false);
+syncCanvasUI();
+updateScrollSpy();
+if (location.hash.startsWith("#section-"))
+  requestAnimationFrame(() => navigateTo(location.hash.slice(1), false));
+window.addEventListener("hashchange", () =>
+  navigateTo(location.hash.slice(1), false),
+);

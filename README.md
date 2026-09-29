@@ -1,72 +1,62 @@
-# Khawaja Jawad Ahmed — Portfolio
+# Khawaja Jawad Ahmed — Designer Workspace
 
-A Photoshop-interface-inspired portfolio site: left toolbar acts as navigation, right side has a Swatches panel (skills) and a Layers panel (projects), and the canvas area shows the active section.
-
-Plain HTML/CSS/JS — no build step, no dependencies.
-
-## Files
-
-```
-portfolio-website/
-├── index.html   → structure & content
-├── style.css    → theme, layout, responsive rules
-└── script.js    → tool/tab switching, swatches, layers, mobile panels
-```
+A Photoshop-inspired portfolio with an interactive glass workspace. Built with plain HTML, CSS and JavaScript; no build step or production dependencies.
 
 ## Run locally
 
-Just open `index.html` in a browser, or serve it so relative paths behave normally:
-
-```bash
-npx serve .
+```sh
+python3 -m http.server 8000
 ```
 
-## Push to GitHub (from VS Code)
+Open `http://localhost:8000`. You can also open `index.html` directly; clipboard and preference storage availability depend on browser permissions.
 
-1. Unzip this folder and open it in VS Code.
-2. Open the built-in terminal (`` Ctrl+` ``) and run:
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial portfolio"
-   ```
-3. Create a new empty repo on GitHub (no README/license, so it stays empty), then:
-   ```bash
-   git remote add origin https://github.com/<your-username>/<repo-name>.git
-   git branch -M main
-   git push -u origin main
-   ```
+## The experience
 
-## Deploy on Vercel
+- A translucent studio shell with real `backdrop-filter` blur, edge highlights, layered typography and subtle pointer lighting.
+- Sage, Violet and Blue workspace palettes, plus an adjustable glass-frost control. Only these preferences are saved locally. Drawing colors never change interface contrast.
+- Project filters and accessible project dialogs. The five project briefs come from the existing portfolio. The CSS typographic covers are labeled as previews, not actual project screenshots.
+- Layer navigation with scroll highlighting, section visibility toggles and direct section links. Navigation restores a hidden section; the last visible section cannot be hidden.
+- A drawing playground with brush, eraser, type, eyedropper, crop and a visual lasso preview, plus 16-step undo/redo and transparent PNG export.
+- Native dialog keyboard behavior, labeled controls, visible focus rings, mobile drawers with focus management, reduced-motion support and opaque fallbacks for unsupported backdrop blur.
 
-1. Go to [vercel.com](https://vercel.com) → **Add New Project**.
-2. Import the GitHub repo you just pushed.
-3. Framework preset: **Other** (it's static — no build command or output directory needed).
-4. Click **Deploy**.
+## Playground tools
 
-Vercel will serve `index.html` as-is. Any time you push to `main`, it redeploys automatically.
+| Key | Tool       | Behavior                                                                          |
+| --- | ---------- | --------------------------------------------------------------------------------- |
+| V   | Move       | Normal portfolio browsing                                                         |
+| B   | Brush      | Draw, including a single-click dot                                                |
+| E   | Eraser     | Erase painted pixels                                                              |
+| T   | Type       | Click to type; Enter places, Shift+Enter adds a line, Escape cancels              |
+| I   | Eyedropper | Sample a painted pixel without changing the interface palette                     |
+| L   | Lasso      | Preview a selection outline; it does not mask edits                               |
+| C   | Crop       | Drag a rectangle to crop and scale it to the drawing area                         |
+| H   | Hand       | Drag non-interactive page space to scroll                                         |
+| Z   | Zoom       | Click non-interactive space to zoom; Alt-click to zoom out; double-click to reset |
 
-## Editing content
+Shortcuts do not intercept typing in inputs or editors. Ctrl/Command+Z and Ctrl/Command+Shift+Z undo/redo while the playground is in view. The canvas can also receive keyboard focus: choose Type, focus it and press Enter to place text in the center area.
 
-- All text content lives in `index.html`, inside the five `<section class="canvas-section">` blocks (About, Work, Skills, Resume, Contact).
-- Colors, fonts, and spacing are driven by CSS variables at the top of `style.css` (`:root { ... }`) — change `--accent` there to reset the default brand color.
-- Behavior (tool switching, swatch clicks, layer toggles, mobile drawers) lives in `script.js`.
+The stable 1200×650 bitmap survives viewport resizing and workspace zoom. Pointer positions map to the bitmap at every zoom level. Placed text becomes part of the image, so it can be erased, cropped, undone and exported. Drawing history exists only in the current tab; save a PNG before reloading.
 
-## How it works now
+## Edit content
 
-- **Single scrollable page** — no tabs. All sections (Home, Scratch Layer, Work, Skills, Resume, Contact) sit in one column inside the canvas area.
-- **Layers panel = site menu.** Clicking a layer smooth-scrolls to that section; the eye icon shows/hides it; the currently visible section is auto-highlighted as you scroll.
-- **Toolbar tools behave like real Photoshop tools**, and act on the "Scratch Layer" section, which is a real `<canvas>`:
-  - **Move (V)** — default tool.
-  - **Lasso (L)** — drag to draw a marching-ants selection marquee (visual, like Photoshop's selection preview).
-  - **Crop (C)** — drag a box, release to actually crop the scratch layer's contents to that area.
-  - **Eyedropper (I)** — click the scratch layer to sample the pixel color under your cursor; it becomes the current foreground color.
-  - **Brush (B)** / **Eraser (E)** — draw or erase on the scratch layer; size is adjustable in the Properties panel.
-  - **Type (T)** — click to drop an editable text box at that point.
-  - **Hand (H)** — drag anywhere on the page to pan/scroll.
-  - **Zoom (Z)** — click to zoom the page in, Alt+click to zoom out, double-click to reset to 100%.
-- **Swatches** set the current foreground color, used by Brush, Type, and shown by Eyedropper.
+- `index.html`: biography, five project briefs and cover markup, skills, experience, contact details and six page sections.
+- `style.css`: design tokens, artwork, glass surfaces and responsive layouts. The `@supports` and reduced-transparency rules provide solid surfaces where required.
+- `script.js`: palette settings, navigation, project dialogs, drawing tools, keyboard shortcuts and mobile drawers.
 
-## Next steps
+To replace a typographic project cover with a real asset, replace that card's `.project-art` contents with an image and style it to fit. Keep the `.project-art` wrapper: the project dialog clones that element. Update the preview labels when actual artwork is available.
 
-Everything above is functional, not just decorative — try it locally before deploying. If you want a specific tool to behave differently, tell me and I'll adjust it.
+Google Fonts is optional; local system font fallbacks keep the site usable offline. Email and phone links, LinkedIn and Behance retain the original portfolio destinations. The copy-email action uses the Clipboard API on secure origins, with a text-selection fallback.
+
+## Hosting
+
+This is a static site. Serve the repository root with your existing host; no build command is required. Use your host's branch preview or merge the reviewed branch into the configured production branch to publish. This repository's default branch is `master`.
+
+## Review checklist
+
+1. Check the home screen, all six sections and project cards at desktop and phone widths.
+2. Filter work, open a project and close it with Escape; focus should return to its card.
+3. Change themes and frost, then reload; the mood should persist.
+4. Hide and restore a layer; navigate to a hidden layer from the top menu.
+5. Draw, erase, type, sample, crop, undo/redo, resize, zoom and export.
+6. On mobile, open each drawer, use Tab/Shift+Tab, select a tool or section and close with Escape.
+7. With reduced motion enabled, verify that ambient drift and hover tilt are disabled.

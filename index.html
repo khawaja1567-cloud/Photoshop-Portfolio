@@ -1,335 +1,1267 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Khawaja Jawad Ahmed — Designer Workspace</title>
-<meta name="description" content="Khawaja Jawad Ahmed — Freelance Graphic & Presentation Designer, Rawalpindi, Pakistan.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-<div class="bg-scene" aria-hidden="true">
-  <span class="orb orb-a"></span>
-  <span class="orb orb-b"></span>
-  <span class="orb orb-c"></span>
-  <span class="orb orb-d"></span>
-  <span class="sphere sphere-a"></span>
-  <span class="sphere sphere-b"></span>
-  <span class="sphere sphere-c"></span>
-</div>
-
-<div class="app" id="app">
-
-  <!-- MENU BAR -->
-  <header class="menubar">
-    <div class="menubar-left">
-      <div class="app-icon">JA</div>
-      <nav class="menu-items">
-        <span>File</span><span>Edit</span><span>Image</span><span>Layer</span><span>Select</span><span>View</span><span>Window</span><span>Help</span>
-      </nav>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#101713" />
+    <title>Khawaja Jawad Ahmed — Designer Workspace</title>
+    <meta
+      name="description"
+      content="Explore Khawaja Jawad Ahmed's interactive design workspace. Graphic design, pitch decks, brand identity and presentation systems from Rawalpindi, Pakistan."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='12' fill='%23c7f28b'/%3E%3Ctext x='24' y='31' text-anchor='middle' font-family='Arial' font-size='23' font-weight='700' fill='%23101713'%3EJA%3C/text%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#section-home">Skip to portfolio</a>
+    <div class="bg-scene" aria-hidden="true">
+      <span class="orb orb-a"></span><span class="orb orb-b"></span
+      ><span class="orb orb-c"></span>
+      <div class="scene-grid"></div>
     </div>
-    <div class="doc-title">Khawaja_Jawad_Portfolio.psd</div>
-    <div class="menubar-right">
-      <button class="win-btn" id="mobileToggleLeft" aria-label="Toggle tools">🛠</button>
-      <button class="win-btn" id="mobileToggleRight" aria-label="Toggle panels">▤</button>
-    </div>
-  </header>
+    <div class="app" id="app">
+      <header class="menubar glass">
+        <a class="brand" href="#section-home" aria-label="Jawad Ahmed, home"
+          ><span class="app-icon">JA<span>.</span></span
+          ><span class="brand-name"
+            >Jawad Ahmed<span>DESIGNER WORKSPACE</span></span
+          ></a
+        >
+        <nav class="menu-items" aria-label="Main navigation">
+          <a href="#section-home" class="active" aria-current="location"
+            >About</a
+          ><a href="#section-work">Work</a
+          ><a href="#section-scratch">Playground</a
+          ><a href="#section-contact">Contact</a>
+        </nav>
+        <div class="menubar-right">
+          <span class="availability"><i></i> Available for work</span
+          ><a class="header-cta" href="mailto:khawaja1567@gmail.com"
+            >Let's talk <span>↗</span></a
+          ><button
+            class="win-btn"
+            id="mobileToggleLeft"
+            aria-label="Open drawing tools"
+            aria-controls="toolbar"
+            aria-expanded="false"
+          >
+            ✳</button
+          ><button
+            class="win-btn"
+            id="mobileToggleRight"
+            aria-label="Open workspace panels"
+            aria-controls="panels"
+            aria-expanded="false"
+          >
+            ☷
+          </button>
+        </div>
+      </header>
+      <div class="workspace">
+        <aside class="toolbar glass" id="toolbar" aria-label="Drawing tools">
+          <span class="toolbar-caption">TOOLS</span>
+          <button
+            class="tool active"
+            aria-pressed="true"
+            data-tool="move"
+            data-tooltip="Move Tool (V)"
+            aria-label="Move Tool (V)"
+            title="Move Tool (V)"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+            >
+              <path d="M12 3v18M3 12h18M7 7l-3 5 3 5M17 7l3 5-3 5" />
+            </svg>
+          </button>
+          <button
+            class="tool"
+            aria-pressed="false"
+            data-tool="lasso"
+            data-tooltip="Lasso Tool (L)"
+            aria-label="Lasso Tool (L)"
+            title="Lasso Tool (L)"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+            >
+              <path
+                d="M12 4c4.4 0 7 2.6 7 6s-3 6.5-7.5 6.5c-1 0-1.8-.2-2.5-.5.3.9.1 1.9-.6 2.6-.9.9-2.3.9-3.2 0-.7-.7-.8-1.8-.3-2.6C3 14.6 5 12.2 5 10c0-3.4 2.6-6 7-6z"
+              />
+            </svg>
+          </button>
+          <button
+            class="tool"
+            aria-pressed="false"
+            data-tool="crop"
+            data-tooltip="Crop Tool (C)"
+            aria-label="Crop Tool (C)"
+            title="Crop Tool (C)"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+            >
+              <path d="M6 2v14a2 2 0 0 0 2 2h14" />
+              <path d="M18 22V8a2 2 0 0 0-2-2H2" />
+            </svg>
+          </button>
+          <button
+            class="tool"
+            aria-pressed="false"
+            data-tool="eyedropper"
+            data-tooltip="Eyedropper (I)"
+            aria-label="Eyedropper (I)"
+            title="Eyedropper (I)"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+            >
+              <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L9 17l-4 1 1-4 10.5-10.5z" />
+            </svg>
+          </button>
 
-  <div class="workspace">
+          <div class="tool-divider"></div>
 
-    <!-- LEFT TOOLBAR — real Photoshop-style tools -->
-    <aside class="toolbar" id="toolbar">
-      <button class="tool active" data-tool="move" data-tooltip="Move Tool (V)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v18M3 12h18M7 7l-3 5 3 5M17 7l3 5-3 5"/></svg>
-      </button>
-      <button class="tool" data-tool="lasso" data-tooltip="Lasso Tool (L)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 4c4.4 0 7 2.6 7 6s-3 6.5-7.5 6.5c-1 0-1.8-.2-2.5-.5.3.9.1 1.9-.6 2.6-.9.9-2.3.9-3.2 0-.7-.7-.8-1.8-.3-2.6C3 14.6 5 12.2 5 10c0-3.4 2.6-6 7-6z"/></svg>
-      </button>
-      <button class="tool" data-tool="crop" data-tooltip="Crop Tool (C)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></svg>
-      </button>
-      <button class="tool" data-tool="eyedropper" data-tooltip="Eyedropper (I)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L9 17l-4 1 1-4 10.5-10.5z"/></svg>
-      </button>
+          <button
+            class="tool"
+            aria-pressed="false"
+            data-tool="brush"
+            data-tooltip="Brush Tool (B)"
+            aria-label="Brush Tool (B)"
+            title="Brush Tool (B)"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+            >
+              <path
+                d="M9 15c-1.5 1.5-2 3-2 5 2 0 3.5-.5 5-2l7-7a2.1 2.1 0 0 0-3-3l-7 7z"
+              />
+              <path d="M13 6l5 5" />
+            </svg>
+          </button>
+          <button
+            class="tool"
+            aria-pressed="false"
+            data-tool="eraser"
+            data-tooltip="Eraser Tool (E)"
+            aria-label="Eraser Tool (E)"
+            title="Eraser Tool (E)"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+            >
+              <path
+                d="M18 13l-7 7H7l-4-4a2 2 0 0 1 0-2.8l9-9a2 2 0 0 1 2.8 0l4 4a2 2 0 0 1 0 2.8L14 16"
+              />
+              <path d="M7 20h13" />
+            </svg>
+          </button>
+          <button
+            class="tool"
+            aria-pressed="false"
+            data-tool="type"
+            data-tooltip="Type Tool (T)"
+            aria-label="Type Tool (T)"
+            title="Type Tool (T)"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+            >
+              <path d="M5 5h14M12 5v14M9 19h6" />
+            </svg>
+          </button>
 
-      <div class="tool-divider"></div>
+          <div class="tool-divider"></div>
 
-      <button class="tool" data-tool="brush" data-tooltip="Brush Tool (B)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 15c-1.5 1.5-2 3-2 5 2 0 3.5-.5 5-2l7-7a2.1 2.1 0 0 0-3-3l-7 7z"/><path d="M13 6l5 5"/></svg>
-      </button>
-      <button class="tool" data-tool="eraser" data-tooltip="Eraser Tool (E)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 13l-7 7H7l-4-4a2 2 0 0 1 0-2.8l9-9a2 2 0 0 1 2.8 0l4 4a2 2 0 0 1 0 2.8L14 16"/><path d="M7 20h13"/></svg>
-      </button>
-      <button class="tool" data-tool="type" data-tooltip="Type Tool (T)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 5h14M12 5v14M9 19h6"/></svg>
-      </button>
+          <button
+            class="tool"
+            aria-pressed="false"
+            data-tool="hand"
+            data-tooltip="Hand Tool (H)"
+            aria-label="Hand Tool (H)"
+            title="Hand Tool (H)"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+            >
+              <path
+                d="M8 12V6a1.5 1.5 0 0 1 3 0v5M11 11V4.5a1.5 1.5 0 0 1 3 0V11M14 11.2V6a1.5 1.5 0 0 1 3 0v8c0 3.9-2.5 6.5-6 6.5-2.3 0-3.6-.7-4.8-2.2L3.7 14a1.4 1.4 0 0 1 2-2l2.3 2"
+              />
+            </svg>
+          </button>
+          <button
+            class="tool"
+            aria-pressed="false"
+            data-tool="zoom"
+            data-tooltip="Zoom Tool (Z)"
+            aria-label="Zoom Tool (Z)"
+            title="Zoom Tool (Z)"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+            >
+              <circle cx="11" cy="11" r="6.5" />
+              <path d="M20 20l-4.3-4.3M9 11h4M11 9v4" />
+            </svg>
+          </button>
 
-      <div class="tool-divider"></div>
+          <div class="tool-spacer"></div>
 
-      <button class="tool" data-tool="hand" data-tooltip="Hand Tool (H)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 12V6a1.5 1.5 0 0 1 3 0v5M11 11V4.5a1.5 1.5 0 0 1 3 0V11M14 11.2V6a1.5 1.5 0 0 1 3 0v8c0 3.9-2.5 6.5-6 6.5-2.3 0-3.6-.7-4.8-2.2L3.7 14a1.4 1.4 0 0 1 2-2l2.3 2"/></svg>
-      </button>
-      <button class="tool" data-tool="zoom" data-tooltip="Zoom Tool (Z)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.3-4.3M9 11h4M11 9v4"/></svg>
-      </button>
-
-      <div class="tool-spacer"></div>
-
-      <div class="fg-bg-swatch" title="Foreground / Background color">
-        <span class="swatch-bg"></span>
-        <span class="swatch-fg" id="swatchFg"></span>
-      </div>
-    </aside>
-
-    <!-- CANVAS — single scrollable page, no tabs -->
-    <main class="canvas-area">
-      <div class="canvas-viewport" id="viewport">
-        <div class="page-sections" id="pageSections">
-
-          <!-- HOME -->
-          <section class="page-section" id="section-home">
-            <div class="canvas-inner">
-              <span class="eyebrow">// layer: home</span>
-              <h1 class="hero-name">Khawaja Jawad<br>Ahmed</h1>
-              <p class="hero-role">Freelance Graphic &amp; Presentation Designer</p>
-              <p class="hero-bio">Based in Rawalpindi, Pakistan. 3+ years designing pitch decks, brand identities, and PowerPoint Slide Master systems for clients across Fiverr and direct freelance channels — with additional experience in social media design and UI/UX‑adjacent work.</p>
-              <div class="hero-tags">
-                <span class="tag">Pitch Decks</span>
-                <span class="tag">Brand Identity</span>
-                <span class="tag">Slide Master Systems</span>
-                <span class="tag">Social Media Design</span>
-              </div>
-              <div class="hero-meta">
-                <div class="meta-item"><span class="meta-k">Canvas Size</span><span class="meta-v">3+ yrs experience</span></div>
-                <div class="meta-item"><span class="meta-k">Location</span><span class="meta-v">Rawalpindi, PK</span></div>
-                <div class="meta-item"><span class="meta-k">Status</span><span class="meta-v">Open to freelance &amp; full-time</span></div>
-              </div>
-            </div>
-          </section>
-
-          <!-- SCRATCH LAYER — real canvas for Brush/Eraser/Type/Eyedropper/Lasso/Crop -->
-          <section class="page-section" id="section-scratch">
-            <div class="canvas-inner canvas-inner-wide">
-              <span class="eyebrow">// layer: scratch — try the tools on the left here</span>
-              <div class="scratch-head">
-                <h2 class="section-title">Scratch Layer</h2>
-                <button class="clear-btn" id="clearCanvasBtn">Clear Layer</button>
-              </div>
-              <p class="section-sub">This box is a real canvas. Pick Brush, Eraser, Type, Eyedropper, Lasso or Crop on the left and try it — colors come from the Swatches panel.</p>
-              <div class="scratch-box" id="scratchBox">
-                <canvas id="doodleCanvas"></canvas>
-                <svg class="tool-overlay" id="toolOverlay"></svg>
-              </div>
-            </div>
-          </section>
-
-          <!-- WORK -->
-          <section class="page-section" id="section-work">
-            <div class="canvas-inner">
-              <span class="eyebrow">// layer: work</span>
-              <h2 class="section-title">Selected Work</h2>
-              <div class="project-grid" id="projectGrid">
-
-                <article class="project-card">
-                  <div class="project-thumb thumb-1"></div>
-                  <div class="project-body">
-                    <h3>Meridian Bay Residences</h3>
-                    <p>Real estate pitch deck built to agency-level standard — layout system, imagery direction, and investor-facing narrative.</p>
+          <div class="fg-bg-swatch" title="Foreground / Background color">
+            <span class="swatch-bg"></span>
+            <span class="swatch-fg" id="swatchFg"></span>
+          </div>
+        </aside>
+        <main class="canvas-area glass" id="main">
+          <div class="document-bar">
+            <a class="document-tab active" href="#section-home"
+              ><span class="ps-icon">Ps</span> Jawad_Portfolio.psd
+              <span class="tab-dot"></span></a
+            ><a class="document-tab" href="#section-scratch"
+              ><span>＋</span> Try the canvas</a
+            ><span class="document-info">RGB / 8</span>
+          </div>
+          <div class="ruler" aria-hidden="true">
+            <span>0</span><span>200</span><span>400</span><span>600</span
+            ><span>800</span><span>1000</span>
+          </div>
+          <div
+            class="canvas-viewport"
+            id="viewport"
+            tabindex="0"
+            aria-label="Portfolio content"
+          >
+            <div class="page-sections" id="pageSections">
+              <section
+                class="page-section home-section"
+                id="section-home"
+                aria-labelledby="homeTitle"
+              >
+                <div class="section-topline">
+                  <span class="eyebrow"
+                    ><i></i> THE PERSON BEHIND THE PIXELS</span
+                  ><span class="micro">PORTFOLIO / 2026</span>
+                </div>
+                <div class="hero-layout">
+                  <div class="hero-copy">
+                    <p class="hero-intro">Hey, I'm Khawaja Jawad Ahmed.</p>
+                    <h1 id="homeTitle">
+                      Design with<br /><span>intention.</span>
+                    </h1>
+                    <p class="hero-role">Graphic &amp; Presentation Designer</p>
+                    <p class="hero-bio">
+                      I turn complex ideas into clear, compelling visuals — from
+                      pitch decks and brand identities to the details that make
+                      them feel right.
+                    </p>
+                    <div class="hero-actions">
+                      <a class="button button-primary" href="#section-work"
+                        >Explore my work <span>↗</span></a
+                      ><a class="text-link" href="#section-contact"
+                        >Let's create together <span>→</span></a
+                      >
+                    </div>
+                    <div class="hero-note">
+                      <span class="note-line"></span> A creative mind. An open
+                      canvas.
+                    </div>
                   </div>
-                </article>
-
-                <article class="project-card">
-                  <div class="project-thumb thumb-2"></div>
-                  <div class="project-body">
-                    <h3>LOVAICELAND</h3>
-                    <p>8-slide dark gold pitch deck for a luxury botanical wellness &amp; skincare brand, with custom-generated imagery throughout.</p>
-                  </div>
-                </article>
-
-                <article class="project-card">
-                  <div class="project-thumb thumb-3"></div>
-                  <div class="project-body">
-                    <h3>AVORA Padel Club</h3>
-                    <p>Luxury line-art logo mark in copper tones, set in Cinzel — a refined identity for a premium padel club.</p>
-                  </div>
-                </article>
-
-                <article class="project-card">
-                  <div class="project-thumb thumb-4"></div>
-                  <div class="project-body">
-                    <h3>Rolls-Royce Concept Deck</h3>
-                    <p>Black-and-gold luxury presentation theme exploring restraint, materiality, and quiet confidence.</p>
-                  </div>
-                </article>
-
-                <article class="project-card">
-                  <div class="project-thumb thumb-5"></div>
-                  <div class="project-body">
-                    <h3>Academic Deck Redesign</h3>
-                    <p>18-slide redesign on tacit knowledge and AI — full-bleed dark panels and richer layout without touching a word of copy.</p>
-                  </div>
-                </article>
-
-              </div>
-            </div>
-          </section>
-
-          <!-- SKILLS -->
-          <section class="page-section" id="section-skills">
-            <div class="canvas-inner">
-              <span class="eyebrow">// layer: skills</span>
-              <h2 class="section-title">Tools &amp; Skills</h2>
-              <p class="section-sub">Pick a swatch on the right to see it highlighted here.</p>
-              <div class="skills-grid" id="skillsGrid">
-                <div class="skill-row" data-color="illustrator"><span class="skill-dot"></span>Adobe Illustrator</div>
-                <div class="skill-row" data-color="photoshop"><span class="skill-dot"></span>Adobe Photoshop</div>
-                <div class="skill-row" data-color="figma"><span class="skill-dot"></span>Figma</div>
-                <div class="skill-row" data-color="ppt"><span class="skill-dot"></span>PowerPoint &amp; Slide Master</div>
-                <div class="skill-row" data-color="premiere"><span class="skill-dot"></span>Premiere Pro</div>
-                <div class="skill-row" data-color="capcut"><span class="skill-dot"></span>CapCut</div>
-                <div class="skill-row" data-color="canva"><span class="skill-dot"></span>Canva</div>
-                <div class="skill-row" data-color="color"><span class="skill-dot"></span>Color Theory</div>
-              </div>
-            </div>
-          </section>
-
-          <!-- RESUME -->
-          <section class="page-section" id="section-resume">
-            <div class="canvas-inner">
-              <span class="eyebrow">// layer: resume</span>
-              <h2 class="section-title">Experience</h2>
-              <div class="timeline">
-                <div class="timeline-item">
-                  <div class="timeline-dot"></div>
-                  <div class="timeline-body">
-                    <h3>Freelance Designer</h3>
-                    <p class="timeline-meta">Independent — Present</p>
-                    <p>Working directly with clients on pitch decks, brand identity, and Slide Master systems while building out a portfolio of agency-level work.</p>
+                  <div
+                    class="hero-art"
+                    id="heroArt"
+                    aria-label="Interactive studio typography experiment"
+                  >
+                    <div class="art-orbit" aria-hidden="true"></div>
+                    <div class="artboard-back glass" aria-hidden="true">
+                      <span>GOOD IDEAS START HERE.</span>
+                    </div>
+                    <div class="hero-artboard glass" id="heroArtboard">
+                      <div class="artboard-top">
+                        <span>STUDIO EXPERIMENT</span><span>01 / JA</span>
+                      </div>
+                      <div class="hero-art-type">
+                        Ideas,<br />made<br /><em>visible.</em
+                        ><span class="art-asterisk" aria-hidden="true">✳</span>
+                      </div>
+                      <div class="artboard-bottom">
+                        <span>CONCEPT → CLARITY</span><span>↗</span>
+                      </div>
+                    </div>
+                    <div class="floating-label glass">
+                      <span class="tiny-spark">✦</span
+                      ><span>Thoughtful by design.</span>
+                    </div>
+                    <span class="art-coordinate micro"
+                      >X: IMAGINATION &nbsp; Y: INTENTION</span
+                    >
                   </div>
                 </div>
-                <div class="timeline-item">
-                  <div class="timeline-dot"></div>
-                  <div class="timeline-body">
-                    <h3>Graphic &amp; Presentation Designer</h3>
-                    <p class="timeline-meta">Alestra Solutions (Fiverr agency)</p>
-                    <p>Delivered design work for international clients through a Fiverr-affiliated agency, developing the pitch deck and brand systems skillset now central to the freelance practice.</p>
+                <div class="hero-meta">
+                  <div>
+                    <strong>3<span>+</span></strong>
+                    <p>Years of creative experience</p>
+                  </div>
+                  <div>
+                    <strong>Ideas → impact</strong>
+                    <p>Pitch decks · Identity · Social</p>
+                  </div>
+                  <div>
+                    <strong
+                      >Rawalpindi, PK <span class="location-dot"></span
+                    ></strong>
+                    <p>Working with clients everywhere</p>
                   </div>
                 </div>
+              </section>
+              <section
+                class="page-section"
+                id="section-work"
+                aria-labelledby="workTitle"
+              >
+                <div class="section-topline">
+                  <span class="eyebrow">01 / SELECTED WORK</span
+                  ><span class="micro">A FEW THINGS I'VE SHAPED</span>
+                </div>
+                <div class="section-heading">
+                  <div>
+                    <h2 id="workTitle">
+                      Built to make an impression<span>.</span>
+                    </h2>
+                    <p class="section-sub">
+                      Distinct ideas. Considered execution.
+                    </p>
+                  </div>
+                  <span class="section-mark" aria-hidden="true">↙</span>
+                </div>
+                <div class="work-toolbar">
+                  <div
+                    class="project-filters"
+                    role="group"
+                    aria-label="Filter projects"
+                  >
+                    <button
+                      class="filter active"
+                      data-filter="all"
+                      aria-pressed="true"
+                    >
+                      All work <span>05</span></button
+                    ><button
+                      class="filter"
+                      data-filter="presentations"
+                      aria-pressed="false"
+                    >
+                      Presentations</button
+                    ><button
+                      class="filter"
+                      data-filter="identity"
+                      aria-pressed="false"
+                    >
+                      Brand identity
+                    </button>
+                  </div>
+                  <span class="micro" id="projectCount" role="status"
+                    >5 PROJECTS</span
+                  >
+                </div>
+                <div class="project-grid" id="projectGrid">
+                  <article
+                    class="project-card glass"
+                    data-category="presentations"
+                  >
+                    <button
+                      class="project-open"
+                      data-project="0"
+                      aria-label="View Meridian Bay Residences"
+                    >
+                      <div class="project-art art-1" aria-hidden="true">
+                        <span class="art-kicker">MERIDIAN BAY / RESIDENCES</span
+                        ><span class="art-big">A new<br />perspective.</span
+                        ><span class="art-bottom"
+                          >LIVING, REIMAGINED <b>↗</b></span
+                        ><span class="arch arch-one"></span
+                        ><span class="arch arch-two"></span>
+                      </div>
+                      <div class="project-body">
+                        <div class="project-meta">
+                          <span>Presentation design</span><span>01</span>
+                        </div>
+                        <h3>
+                          Meridian Bay Residences<span aria-hidden="true"
+                            >↗</span
+                          >
+                        </h3>
+                        <p>
+                          Real estate pitch deck built to agency-level standard
+                          — layout system, imagery direction, and
+                          investor-facing narrative.
+                        </p>
+                      </div>
+                    </button>
+                  </article>
+                  <article
+                    class="project-card glass"
+                    data-category="presentations"
+                  >
+                    <button
+                      class="project-open"
+                      data-project="1"
+                      aria-label="View LOVAICELAND"
+                    >
+                      <div class="project-art art-2" aria-hidden="true">
+                        <span class="art-kicker">BOTANICAL WELLNESS</span
+                        ><span class="art-big">LOVA<br /><i>ICELAND</i></span
+                        ><span class="art-bottom">NATURE. IN ITS ELEMENT.</span
+                        ><span class="botanical-ring"></span>
+                      </div>
+                      <div class="project-body">
+                        <div class="project-meta">
+                          <span>Presentation design</span><span>02</span>
+                        </div>
+                        <h3>LOVAICELAND<span aria-hidden="true">↗</span></h3>
+                        <p>
+                          8-slide dark gold pitch deck for a luxury botanical
+                          wellness &amp; skincare brand, with custom-generated
+                          imagery throughout.
+                        </p>
+                      </div>
+                    </button>
+                  </article>
+                  <article class="project-card glass" data-category="identity">
+                    <button
+                      class="project-open"
+                      data-project="2"
+                      aria-label="View AVORA Padel Club"
+                    >
+                      <div class="project-art art-3" aria-hidden="true">
+                        <span class="art-kicker">AVORA / PADEL CLUB</span
+                        ><span class="court"></span
+                        ><span class="art-big"
+                          >A<span class="serif">V</span>ORA</span
+                        ><span class="art-bottom"
+                          >A DIFFERENT KIND OF CLUB.</span
+                        >
+                      </div>
+                      <div class="project-body">
+                        <div class="project-meta">
+                          <span>Brand identity</span><span>03</span>
+                        </div>
+                        <h3>
+                          AVORA Padel Club<span aria-hidden="true">↗</span>
+                        </h3>
+                        <p>
+                          Luxury line-art logo mark in copper tones, set in
+                          Cinzel — a refined identity for a premium padel club.
+                        </p>
+                      </div>
+                    </button>
+                  </article>
+                  <article
+                    class="project-card glass"
+                    data-category="presentations"
+                  >
+                    <button
+                      class="project-open"
+                      data-project="3"
+                      aria-label="View Rolls-Royce Concept Deck"
+                    >
+                      <div class="project-art art-4" aria-hidden="true">
+                        <span class="art-kicker">PRESENTATION CONCEPT</span
+                        ><span class="art-big"
+                          >Quiet<br /><i>confidence.</i></span
+                        ><span class="art-bottom"
+                          >ROLLS-ROYCE / CONCEPT STUDY</span
+                        ><span class="luxury-line"></span>
+                      </div>
+                      <div class="project-body">
+                        <div class="project-meta">
+                          <span>Presentation design</span><span>04</span>
+                        </div>
+                        <h3>
+                          Rolls-Royce Concept Deck<span aria-hidden="true"
+                            >↗</span
+                          >
+                        </h3>
+                        <p>
+                          Black-and-gold luxury presentation theme exploring
+                          restraint, materiality, and quiet confidence.
+                        </p>
+                      </div>
+                    </button>
+                  </article>
+                  <article
+                    class="project-card glass"
+                    data-category="presentations"
+                  >
+                    <button
+                      class="project-open"
+                      data-project="4"
+                      aria-label="View Academic Deck Redesign"
+                    >
+                      <div class="project-art art-5" aria-hidden="true">
+                        <span class="art-kicker"
+                          >KNOWLEDGE × ARTIFICIAL INTELLIGENCE</span
+                        ><span class="art-big"
+                          >Beyond<br />the obvious<span class="accent-dot"
+                            >.</span
+                          ></span
+                        ><span class="art-bottom"
+                          >ACADEMIC DECK / 18 SLIDES</span
+                        ><span class="knowledge-grid"></span>
+                      </div>
+                      <div class="project-body">
+                        <div class="project-meta">
+                          <span>Presentation design</span><span>05</span>
+                        </div>
+                        <h3>
+                          Academic Deck Redesign<span aria-hidden="true"
+                            >↗</span
+                          >
+                        </h3>
+                        <p>
+                          18-slide redesign on tacit knowledge and AI —
+                          full-bleed dark panels and richer layout without
+                          touching a word of copy.
+                        </p>
+                      </div>
+                    </button>
+                  </article>
+                </div>
+                <p class="preview-note">
+                  Typographic project covers. Open a project to read the brief,
+                  or
+                  <a
+                    href="https://behance.net/khawajajawad"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >explore my Behance ↗</a
+                  >.
+                </p>
+              </section>
+              <section
+                class="page-section"
+                id="section-scratch"
+                aria-labelledby="scratchTitle"
+              >
+                <div class="section-topline">
+                  <span class="eyebrow">02 / THE PLAYGROUND</span
+                  ><span class="micro">A LITTLE ROOM TO EXPERIMENT</span>
+                </div>
+                <div class="section-heading">
+                  <div>
+                    <h2 id="scratchTitle">Your turn to create<span>.</span></h2>
+                    <p class="section-sub">
+                      Pick a tool. Choose a color. Leave a little imagination
+                      here.
+                    </p>
+                  </div>
+                  <span class="section-mark" aria-hidden="true">✳</span>
+                </div>
+                <div class="scratch-shell glass">
+                  <div class="scratch-toolbar">
+                    <div
+                      class="scratch-quick-tools"
+                      role="group"
+                      aria-label="Quick drawing tools"
+                    >
+                      <button data-quick-tool="brush" aria-pressed="false">
+                        Brush <kbd>B</kbd></button
+                      ><button data-quick-tool="eraser" aria-pressed="false">
+                        Eraser <kbd>E</kbd></button
+                      ><button data-quick-tool="type" aria-pressed="false">
+                        Type <kbd>T</kbd>
+                      </button>
+                    </div>
+                    <div class="scratch-actions">
+                      <button
+                        id="undoBtn"
+                        aria-label="Undo drawing"
+                        title="Undo (Ctrl or Command + Z)"
+                        disabled
+                      >
+                        ↶</button
+                      ><button
+                        id="redoBtn"
+                        aria-label="Redo drawing"
+                        title="Redo (Ctrl or Command + Shift + Z)"
+                        disabled
+                      >
+                        ↷</button
+                      ><button id="clearCanvasBtn">Clear</button
+                      ><button id="downloadCanvasBtn">
+                        Save PNG <span>↓</span>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="scratch-box" id="scratchBox">
+                    <canvas
+                      id="doodleCanvas"
+                      tabindex="0"
+                      aria-label="Drawing canvas. Select Brush to draw with a pointer, or Type then press Enter to add text at the center."
+                      >An interactive drawing canvas. Use the tools to sketch or
+                      add text.</canvas
+                    ><svg
+                      class="tool-overlay"
+                      id="toolOverlay"
+                      aria-hidden="true"
+                    ></svg>
+                    <div
+                      class="scratch-placeholder"
+                      id="scratchPlaceholder"
+                      aria-hidden="true"
+                    >
+                      <span>✳</span>
+                      <p>Make your mark.</p>
+                      <small>The best ideas start with a blank canvas.</small>
+                    </div>
+                  </div>
+                  <div class="scratch-bottom">
+                    <span
+                      ><i></i> <span id="scratchToolName">MOVE TOOL</span></span
+                    ><label
+                      >Brush size
+                      <input
+                        id="quickBrushSize"
+                        type="range"
+                        min="2"
+                        max="60"
+                        value="8"
+                      /><output id="quickBrushReadout">8 px</output></label
+                    >
+                  </div>
+                </div>
+                <p class="preview-note">
+                  Just a space to play — your drawing stays in this browser tab.
+                  Save a PNG to keep it.
+                </p>
+              </section>
+              <section
+                class="page-section"
+                id="section-skills"
+                aria-labelledby="skillsTitle"
+              >
+                <div class="section-topline">
+                  <span class="eyebrow">03 / THE TOOLKIT</span
+                  ><span class="micro">GOOD TOOLS. BETTER IDEAS.</span>
+                </div>
+                <h2 id="skillsTitle">Fluent in the details<span>.</span></h2>
+                <p class="section-sub">
+                  The tools behind the work, from first sketch to final export.
+                </p>
+                <div class="skills-grid" id="skillsGrid">
+                  <div class="skill-row glass" data-color="photoshop">
+                    <span class="skill-icon" style="--skill-color: #63baff"
+                      >Ps</span
+                    >
+                    <div>
+                      <h3>Adobe Photoshop</h3>
+                      <p>Image editing & composition</p>
+                    </div>
+                    <span class="skill-arrow" aria-hidden="true">↗</span>
+                  </div>
+                  <div class="skill-row glass" data-color="illustrator">
+                    <span class="skill-icon" style="--skill-color: #ff9b42"
+                      >Ai</span
+                    >
+                    <div>
+                      <h3>Adobe Illustrator</h3>
+                      <p>Identity & vector design</p>
+                    </div>
+                    <span class="skill-arrow" aria-hidden="true">↗</span>
+                  </div>
+                  <div class="skill-row glass" data-color="ppt">
+                    <span class="skill-icon" style="--skill-color: #ee795b"
+                      >P</span
+                    >
+                    <div>
+                      <h3>PowerPoint</h3>
+                      <p>Pitch decks & Slide Master</p>
+                    </div>
+                    <span class="skill-arrow" aria-hidden="true">↗</span>
+                  </div>
+                  <div class="skill-row glass" data-color="figma">
+                    <span class="skill-icon" style="--skill-color: #bba3ff"
+                      >F</span
+                    >
+                    <div>
+                      <h3>Figma</h3>
+                      <p>Interface & layout design</p>
+                    </div>
+                    <span class="skill-arrow" aria-hidden="true">↗</span>
+                  </div>
+                  <div class="skill-row glass" data-color="premiere">
+                    <span class="skill-icon" style="--skill-color: #9999ff"
+                      >Pr</span
+                    >
+                    <div>
+                      <h3>Premiere Pro</h3>
+                      <p>Motion & video editing</p>
+                    </div>
+                    <span class="skill-arrow" aria-hidden="true">↗</span>
+                  </div>
+                  <div class="skill-row glass" data-color="capcut">
+                    <span class="skill-icon" style="--skill-color: #76e2bc"
+                      >C</span
+                    >
+                    <div>
+                      <h3>CapCut</h3>
+                      <p>Social video content</p>
+                    </div>
+                    <span class="skill-arrow" aria-hidden="true">↗</span>
+                  </div>
+                  <div class="skill-row glass" data-color="canva">
+                    <span class="skill-icon" style="--skill-color: #55ced2"
+                      >Ca</span
+                    >
+                    <div>
+                      <h3>Canva</h3>
+                      <p>Content & design systems</p>
+                    </div>
+                    <span class="skill-arrow" aria-hidden="true">↗</span>
+                  </div>
+                  <div class="skill-row glass" data-color="color">
+                    <span class="skill-icon" style="--skill-color: #d99a44"
+                      >◒</span
+                    >
+                    <div>
+                      <h3>Color Theory</h3>
+                      <p>Balance, mood & meaning</p>
+                    </div>
+                    <span class="skill-arrow" aria-hidden="true">↗</span>
+                  </div>
+                </div>
+              </section>
+              <section
+                class="page-section"
+                id="section-resume"
+                aria-labelledby="resumeTitle"
+              >
+                <div class="section-topline">
+                  <span class="eyebrow">04 / EXPERIENCE</span
+                  ><span class="micro">ALWAYS BUILDING. ALWAYS LEARNING.</span>
+                </div>
+                <h2 id="resumeTitle">A practice, in progress<span>.</span></h2>
+                <div class="timeline">
+                  <article class="timeline-item">
+                    <div class="timeline-number">01</div>
+                    <div class="timeline-body">
+                      <div class="timeline-top">
+                        <h3>Freelance Designer</h3>
+                        <span class="tag">Present</span>
+                      </div>
+                      <p class="timeline-meta">Independent</p>
+                      <p>
+                        Working directly with clients on pitch decks, brand
+                        identity, and Slide Master systems while building a
+                        portfolio of thoughtful, polished work.
+                      </p>
+                    </div>
+                  </article>
+                  <article class="timeline-item">
+                    <div class="timeline-number">02</div>
+                    <div class="timeline-body">
+                      <h3>Graphic &amp; Presentation Designer</h3>
+                      <p class="timeline-meta">
+                        Alestra Solutions · Fiverr agency
+                      </p>
+                      <p>
+                        Delivered design work for international clients through
+                        a Fiverr-affiliated agency, developing the pitch deck
+                        and brand systems skillset now central to my freelance
+                        practice.
+                      </p>
+                    </div>
+                  </article>
+                </div>
+              </section>
+              <section
+                class="page-section contact-section"
+                id="section-contact"
+                aria-labelledby="contactTitle"
+              >
+                <div class="section-topline">
+                  <span class="eyebrow">05 / WHAT'S NEXT?</span
+                  ><span class="availability"
+                    ><i></i> Open to opportunities</span
+                  >
+                </div>
+                <h2 id="contactTitle">Have something<br />in <em>mind?</em></h2>
+                <p class="section-sub">
+                  A new brand, an important pitch, or an idea worth
+                  exploring.<br />Let's make it something you're proud to put
+                  your name on.
+                </p>
+                <div class="contact-primary">
+                  <a href="mailto:khawaja1567@gmail.com"
+                    >khawaja1567@gmail.com <span>↗</span></a
+                  ><button
+                    id="copyEmailBtn"
+                    aria-label="Copy email address"
+                    title="Copy email address"
+                  >
+                    Copy email
+                  </button>
+                </div>
+                <div class="contact-links">
+                  <a
+                    href="https://behance.net/khawajajawad"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >Behance ↗</a
+                  ><a
+                    href="https://linkedin.com/in/khawaja-jawad-ahmed-405a89166"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >LinkedIn ↗</a
+                  ><a href="tel:+923109467290">+92 310 9467290 ↗</a>
+                </div>
+                <div class="page-footer">
+                  <span>© <span id="year">2026</span> Khawaja Jawad Ahmed</span
+                  ><a href="#section-home">Back to the top ↑</a>
+                </div>
+              </section>
+            </div>
+          </div>
+        </main>
+        <aside class="panels" id="panels" aria-label="Workspace panels">
+          <div class="panel glass studio-panel">
+            <div class="panel-header">
+              <span>Workspace</span><span class="panel-mini">✦</span>
+            </div>
+            <div class="studio-body">
+              <div class="studio-status">
+                <span class="live-dot"></span> Make yourself at home.
+              </div>
+              <p>
+                A portfolio you can play with.<br />Adjust the mood. Explore the
+                layers.
+              </p>
+              <div
+                class="theme-picker"
+                role="group"
+                aria-label="Workspace color theme"
+              >
+                <button
+                  data-theme="sage"
+                  class="theme-chip active"
+                  aria-pressed="true"
+                >
+                  <i style="background: #c7f28b"></i>Sage</button
+                ><button
+                  data-theme="violet"
+                  class="theme-chip"
+                  aria-pressed="false"
+                >
+                  <i style="background: #c5b4ff"></i>Violet</button
+                ><button
+                  data-theme="blue"
+                  class="theme-chip"
+                  aria-pressed="false"
+                >
+                  <i style="background: #9cdcff"></i>Blue
+                </button>
+              </div>
+              <label class="frost-label" for="frostRange"
+                >Glass frost <output id="frostOutput">20</output></label
+              ><input
+                id="frostRange"
+                type="range"
+                min="8"
+                max="32"
+                value="20"
+                aria-label="Glass blur in pixels"
+              />
+              <div class="range-captions">
+                <span>Crisp</span><span>Frosted</span>
               </div>
             </div>
-          </section>
-
-          <!-- CONTACT -->
-          <section class="page-section" id="section-contact">
-            <div class="canvas-inner">
-              <span class="eyebrow">// layer: contact — sampled with Eyedropper</span>
-              <h2 class="section-title">Contact</h2>
-              <div class="contact-list">
-                <a class="contact-row" href="mailto:khawaja1567@gmail.com">
-                  <span class="contact-k">Email</span>
-                  <span class="contact-v">khawaja1567@gmail.com</span>
-                </a>
-                <a class="contact-row" href="tel:+923109467290">
-                  <span class="contact-k">Phone</span>
-                  <span class="contact-v">+92 310 9467290</span>
-                </a>
-                <a class="contact-row" href="https://linkedin.com/in/khawaja-jawad-ahmed-405a89166" target="_blank" rel="noopener">
-                  <span class="contact-k">LinkedIn</span>
-                  <span class="contact-v">/khawaja-jawad-ahmed</span>
-                </a>
-                <a class="contact-row" href="https://behance.net/khawajajawad" target="_blank" rel="noopener">
-                  <span class="contact-k">Behance</span>
-                  <span class="contact-v">/khawajajawad</span>
-                </a>
-              </div>
+          </div>
+          <div class="panel glass layers-panel">
+            <div class="panel-header">
+              <span>Layers</span
+              ><span class="panel-header-hint">06 sections</span>
             </div>
-          </section>
-
-        </div>
+            <div class="layers-caption">
+              <span>Normal</span><span>Opacity &nbsp;100%</span>
+            </div>
+            <nav
+              class="layers-list"
+              id="layersList"
+              aria-label="Portfolio sections"
+            >
+              <div class="layer-row active-layer" data-target="section-home">
+                <button
+                  class="layer-eye"
+                  aria-label="Hide About me"
+                  aria-pressed="true"
+                  title="Show or hide About me"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"
+                    />
+                    <circle cx="12" cy="12" r="2.5" />
+                  </svg></button
+                ><a class="layer-link" href="#section-home"
+                  ><span class="layer-thumb thumb-home" aria-hidden="true"
+                    >T</span
+                  ><span>About me</span><small>01</small></a
+                >
+              </div>
+              <div class="layer-row" data-target="section-work">
+                <button
+                  class="layer-eye"
+                  aria-label="Hide Selected work"
+                  aria-pressed="true"
+                  title="Show or hide Selected work"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"
+                    />
+                    <circle cx="12" cy="12" r="2.5" />
+                  </svg></button
+                ><a class="layer-link" href="#section-work"
+                  ><span class="layer-thumb thumb-work" aria-hidden="true"
+                    >◈</span
+                  ><span>Selected work</span><small>02</small></a
+                >
+              </div>
+              <div class="layer-row" data-target="section-scratch">
+                <button
+                  class="layer-eye"
+                  aria-label="Hide Playground"
+                  aria-pressed="true"
+                  title="Show or hide Playground"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"
+                    />
+                    <circle cx="12" cy="12" r="2.5" />
+                  </svg></button
+                ><a class="layer-link" href="#section-scratch"
+                  ><span class="layer-thumb thumb-scratch" aria-hidden="true"
+                    >✳</span
+                  ><span>Playground</span><small>03</small></a
+                >
+              </div>
+              <div class="layer-row" data-target="section-skills">
+                <button
+                  class="layer-eye"
+                  aria-label="Hide Tools & skills"
+                  aria-pressed="true"
+                  title="Show or hide Tools & skills"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"
+                    />
+                    <circle cx="12" cy="12" r="2.5" />
+                  </svg></button
+                ><a class="layer-link" href="#section-skills"
+                  ><span class="layer-thumb thumb-skills" aria-hidden="true"
+                    >≡</span
+                  ><span>Tools & skills</span><small>04</small></a
+                >
+              </div>
+              <div class="layer-row" data-target="section-resume">
+                <button
+                  class="layer-eye"
+                  aria-label="Hide Experience"
+                  aria-pressed="true"
+                  title="Show or hide Experience"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"
+                    />
+                    <circle cx="12" cy="12" r="2.5" />
+                  </svg></button
+                ><a class="layer-link" href="#section-resume"
+                  ><span class="layer-thumb thumb-resume" aria-hidden="true"
+                    >≡</span
+                  ><span>Experience</span><small>05</small></a
+                >
+              </div>
+              <div class="layer-row" data-target="section-contact">
+                <button
+                  class="layer-eye"
+                  aria-label="Hide Get in touch"
+                  aria-pressed="true"
+                  title="Show or hide Get in touch"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"
+                    />
+                    <circle cx="12" cy="12" r="2.5" />
+                  </svg></button
+                ><a class="layer-link" href="#section-contact"
+                  ><span class="layer-thumb thumb-contact" aria-hidden="true"
+                    >≡</span
+                  ><span>Get in touch</span><small>06</small></a
+                >
+              </div>
+            </nav>
+            <div class="panel-footer">
+              <span class="live-dot"></span
+              ><span id="activeLayerLabel">About me</span><span>↳</span>
+            </div>
+          </div>
+          <div class="panel glass swatches-panel">
+            <div class="panel-header">
+              <span>Swatches</span
+              ><span class="panel-header-hint">Drawing color</span>
+            </div>
+            <div class="swatch-grid" id="swatchGrid">
+              <button
+                class="swatch"
+                data-color="illustrator"
+                data-hex="#ff9b42"
+                style="--sw: #ff9b42"
+                aria-label="Illustrator orange"
+                aria-pressed="false"
+                title="Illustrator orange"
+              ></button
+              ><button
+                class="swatch"
+                data-color="photoshop"
+                data-hex="#63baff"
+                style="--sw: #63baff"
+                aria-label="Photoshop blue"
+                aria-pressed="false"
+                title="Photoshop blue"
+              ></button
+              ><button
+                class="swatch"
+                data-color="figma"
+                data-hex="#bba3ff"
+                style="--sw: #bba3ff"
+                aria-label="Figma violet"
+                aria-pressed="false"
+                title="Figma violet"
+              ></button
+              ><button
+                class="swatch"
+                data-color="ppt"
+                data-hex="#ee795b"
+                style="--sw: #ee795b"
+                aria-label="PowerPoint coral"
+                aria-pressed="false"
+                title="PowerPoint coral"
+              ></button
+              ><button
+                class="swatch"
+                data-color="premiere"
+                data-hex="#9999ff"
+                style="--sw: #9999ff"
+                aria-label="Premiere indigo"
+                aria-pressed="false"
+                title="Premiere indigo"
+              ></button
+              ><button
+                class="swatch"
+                data-color="capcut"
+                data-hex="#76e2bc"
+                style="--sw: #76e2bc"
+                aria-label="CapCut mint"
+                aria-pressed="false"
+                title="CapCut mint"
+              ></button
+              ><button
+                class="swatch"
+                data-color="canva"
+                data-hex="#55ced2"
+                style="--sw: #55ced2"
+                aria-label="Canva turquoise"
+                aria-pressed="false"
+                title="Canva turquoise"
+              ></button
+              ><button
+                class="swatch"
+                data-color="color"
+                data-hex="#d99a44"
+                style="--sw: #d99a44"
+                aria-label="Warm gold"
+                aria-pressed="false"
+                title="Warm gold"
+              ></button
+              ><button
+                class="swatch"
+                data-color="white"
+                data-hex="#f2f2f2"
+                style="--sw: #f2f2f2"
+                aria-label="White"
+                aria-pressed="false"
+                title="White"
+              ></button
+              ><button
+                class="swatch"
+                data-color="black"
+                data-hex="#141414"
+                style="--sw: #141414"
+                aria-label="Black"
+                aria-pressed="false"
+                title="Black"
+              ></button
+              ><button
+                class="swatch"
+                data-color="red"
+                data-hex="#e04b4b"
+                style="--sw: #e04b4b"
+                aria-label="Red"
+                aria-pressed="false"
+                title="Red"
+              ></button
+              ><button
+                class="swatch"
+                data-color="default"
+                data-hex="#c7f28b"
+                style="--sw: #c7f28b"
+                aria-label="Studio sage"
+                aria-pressed="false"
+                title="Studio sage"
+              ></button>
+            </div>
+            <div class="swatch-readout">
+              <span class="color-dot" id="currentColorDot"></span
+              ><span id="colorHex">#C7F28B</span><span>Foreground</span>
+            </div>
+          </div>
+          <div class="panel glass properties-panel">
+            <div class="panel-header">
+              <span>Properties</span
+              ><span class="panel-header-hint" id="propertyTool">Move</span>
+            </div>
+            <div class="properties-body" id="propertiesBody"></div>
+          </div>
+          <div class="panel-tip">
+            <span>✳</span> A familiar workspace.<br />A different kind of
+            portfolio.
+          </div>
+        </aside>
       </div>
-    </main>
-
-    <!-- RIGHT PANELS -->
-    <aside class="panels" id="panels">
-
-      <div class="panel swatches-panel">
-        <div class="panel-header">Swatches</div>
-        <div class="swatch-grid" id="swatchGrid">
-          <button class="swatch" data-color="illustrator" style="--sw:#ff7f18" data-tooltip="Illustrator"></button>
-          <button class="swatch" data-color="photoshop" style="--sw:#31a8ff" data-tooltip="Photoshop"></button>
-          <button class="swatch" data-color="figma" style="--sw:#a259ff" data-tooltip="Figma"></button>
-          <button class="swatch" data-color="ppt" style="--sw:#d24726" data-tooltip="PowerPoint"></button>
-          <button class="swatch" data-color="premiere" style="--sw:#9999ff" data-tooltip="Premiere Pro"></button>
-          <button class="swatch" data-color="capcut" style="--sw:#00f6c3" data-tooltip="CapCut"></button>
-          <button class="swatch" data-color="canva" style="--sw:#00c4cc" data-tooltip="Canva"></button>
-          <button class="swatch" data-color="color" style="--sw:#d99a44" data-tooltip="Color Theory"></button>
-          <button class="swatch" data-color="white" style="--sw:#f2f2f2" data-tooltip="White"></button>
-          <button class="swatch" data-color="black" style="--sw:#141414" data-tooltip="Black"></button>
-          <button class="swatch" data-color="red" style="--sw:#e04b4b" data-tooltip="Red"></button>
-          <button class="swatch" data-color="default" style="--sw:#d99a44" data-tooltip="Reset accent"></button>
-        </div>
+      <footer class="statusbar">
+        <span class="status-indicator"></span><span>All ideas welcome</span
+        ><span class="statusbar-sep">/</span><span id="statusZoom">100%</span
+        ><button
+          id="resetZoomBtn"
+          aria-label="Reset zoom to 100%"
+          title="Reset zoom"
+        >
+          Reset</button
+        ><span
+          class="statusbar-right"
+          id="statusMsg"
+          role="status"
+          aria-live="polite"
+          >Explore the layers. Find your inspiration.</span
+        ><span class="status-location">RAWALPINDI, PK</span>
+      </footer>
+    </div>
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+    <dialog
+      id="projectDialog"
+      class="project-dialog glass"
+      aria-labelledby="dialogTitle"
+    >
+      <button
+        class="dialog-close"
+        id="closeProjectBtn"
+        aria-label="Close project"
+      >
+        ×
+      </button>
+      <div id="dialogArt" aria-hidden="true"></div>
+      <div class="dialog-body">
+        <span class="eyebrow" id="dialogCategory"></span>
+        <h2 id="dialogTitle"></h2>
+        <p id="dialogDescription"></p>
+        <p class="preview-note">
+          Typographic cover inspired by the project brief.
+        </p>
+        <a
+          class="button button-primary"
+          href="https://behance.net/khawajajawad"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Visit my Behance <span>↗</span></a
+        >
       </div>
-
-      <div class="panel layers-panel">
-        <div class="panel-header">Layers <span class="panel-header-hint">— site menu</span></div>
-        <div class="layers-list" id="layersList">
-          <div class="layer-row active-layer" data-target="section-home">
-            <button class="layer-eye" data-tooltip="Show/hide">👁</button>
-            <span class="layer-thumb thumb-home"></span>
-            <span class="layer-name">Home</span>
-          </div>
-          <div class="layer-row" data-target="section-scratch">
-            <button class="layer-eye" data-tooltip="Show/hide">👁</button>
-            <span class="layer-thumb thumb-scratch"></span>
-            <span class="layer-name">Scratch Layer</span>
-          </div>
-          <div class="layer-row" data-target="section-work">
-            <button class="layer-eye" data-tooltip="Show/hide">👁</button>
-            <span class="layer-thumb thumb-1"></span>
-            <span class="layer-name">Work</span>
-          </div>
-          <div class="layer-row" data-target="section-skills">
-            <button class="layer-eye" data-tooltip="Show/hide">👁</button>
-            <span class="layer-thumb thumb-skills"></span>
-            <span class="layer-name">Skills</span>
-          </div>
-          <div class="layer-row" data-target="section-resume">
-            <button class="layer-eye" data-tooltip="Show/hide">👁</button>
-            <span class="layer-thumb thumb-resume"></span>
-            <span class="layer-name">Resume</span>
-          </div>
-          <div class="layer-row" data-target="section-contact">
-            <button class="layer-eye" data-tooltip="Show/hide">👁</button>
-            <span class="layer-thumb thumb-contact"></span>
-            <span class="layer-name">Contact</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="panel properties-panel">
-        <div class="panel-header">Properties</div>
-        <div class="properties-body" id="propertiesBody"></div>
-      </div>
-
-    </aside>
-  </div>
-
-  <!-- STATUS BAR -->
-  <footer class="statusbar">
-    <span id="statusZoom">100%</span>
-    <span class="statusbar-sep">|</span>
-    <span id="statusDoc">1920 × 1080px · RGB · 8bit</span>
-    <span class="statusbar-right" id="statusMsg">Move tool selected</span>
-  </footer>
-
-</div>
-
-<div class="mobile-overlay" id="mobileOverlay"></div>
-
-<script src="script.js"></script>
-</body>
+    </dialog>
+    <div class="toast glass" id="toast" role="status" aria-live="polite"></div>
+  </body>
 </html>

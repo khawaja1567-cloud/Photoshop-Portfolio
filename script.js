@@ -27,7 +27,7 @@ let textEditor = null;
 let toastTimer;
 let hasArtwork = false;
 const toolHints = {
-  move: "Explore the layers. Find your inspiration.",
+  move: "Browse work or try the drawing tools.",
   brush: "Draw on the playground. Ctrl / ⌘ Z to undo.",
   eraser: "Drag over your drawing to erase.",
   type: "Click the canvas to type. Enter to place, Escape to cancel.",
@@ -191,7 +191,7 @@ function updateActiveSection(id) {
       ).textContent;
     } else link.removeAttribute("aria-current");
   });
-  $$(".menu-items a").forEach((link) => {
+  $$(".menu-items a, .mobile-nav a").forEach((link) => {
     const active = link.hash === `#${id}`;
     link.classList.toggle("active", active);
     if (active) link.setAttribute("aria-current", "location");
@@ -295,23 +295,46 @@ $$(".filter").forEach((button) =>
 );
 const projectDialog = $("#projectDialog");
 let lastProjectOpener;
-$$(".project-open").forEach((button) =>
-  button.addEventListener("click", () => {
-    lastProjectOpener = button;
-    const art = $(".project-art", button).cloneNode(true);
-    $("#dialogArt").replaceChildren(art);
-    $("#dialogTitle").textContent = $("h3", button).childNodes[0].textContent;
-    $("#dialogCategory").textContent = $(
-      ".project-meta>span",
-      button,
-    ).textContent;
-    $("#dialogDescription").textContent = $(
-      ".project-body>p",
-      button,
-    ).textContent;
-    projectDialog.showModal();
-  }),
-);
+let activeProject = 0;
+const projectDetails = [
+  ['Real estate pitch deck', 'Layout system', 'Imagery direction', 'Investor-facing narrative'],
+  ['8-slide pitch deck', 'Botanical wellness & skincare', 'Dark gold palette'],
+  ['Logo mark', 'Line-art identity', 'Copper palette', 'Cinzel typography'],
+  ['Presentation concept', 'Black-and-gold theme', 'Luxury visual direction'],
+  ['18-slide academic deck', 'Full-bleed dark layouts', 'Original copy preserved']
+];
+const projectButtons = $$('.project-open');
+function renderProject(index) {
+  activeProject = index;
+  const button = projectButtons[index];
+  lastProjectOpener = button;
+  $('#dialogArt').replaceChildren($('.project-art', button).cloneNode(true));
+  $('#dialogTitle').textContent = $('h3', button).childNodes[0].textContent;
+  $('#dialogCategory').textContent = $('.project-meta>span', button).textContent;
+  $('#dialogDescription').textContent = $('.project-body>p', button).textContent;
+  $('#dialogScope').replaceChildren(...projectDetails[index].map(detail => {
+    const item = document.createElement('li'); item.textContent = detail; return item;
+  }));
+  const available = projectButtons.filter(item => !item.closest('.project-card').hidden);
+  $('#projectPosition').textContent = `${available.indexOf(button) + 1} / ${available.length}`;
+  $('#previousProject').disabled = $('#nextProject').disabled = available.length < 2;
+  projectDialog.scrollTop = 0;
+}
+function stepProject(direction) {
+  const available = projectButtons.map((button,index) => ({button,index})).filter(({button}) => !button.closest('.project-card').hidden);
+  const current = available.findIndex(({index}) => index === activeProject);
+  if (available.length > 1) renderProject(available[(current + direction + available.length) % available.length].index);
+}
+projectButtons.forEach((button,index) => button.addEventListener('click', () => {
+  renderProject(index); projectDialog.showModal();
+}));
+$('#previousProject').addEventListener('click', () => stepProject(-1));
+$('#nextProject').addEventListener('click', () => stepProject(1));
+projectDialog.addEventListener('keydown', event => {
+  if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+    event.preventDefault(); stepProject(event.key === 'ArrowRight' ? 1 : -1);
+  }
+});
 $("#closeProjectBtn").addEventListener("click", () => projectDialog.close());
 projectDialog.addEventListener("click", (event) => {
   const rect = projectDialog.getBoundingClientRect();

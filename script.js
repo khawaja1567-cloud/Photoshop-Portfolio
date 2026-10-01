@@ -354,8 +354,8 @@ projectDialog.addEventListener("close", () =>
 // Pointer highlights are local, inexpensive and disabled for touch/reduced motion.
 $$(".project-card,.skill-row,#heroArtboard").forEach((surface) => {
   let frame = 0;
-  surface.addEventListener("pointermove", (event) => {
-    if (!finePointer.matches || reducedMotion.matches || frame) return;
+  const updateSurface = (event) => {
+    if ((surface.id !== "heroArtboard" && !finePointer.matches) || reducedMotion.matches || frame) return;
     const { clientX, clientY } = event;
     frame = requestAnimationFrame(() => {
       const rect = surface.getBoundingClientRect();
@@ -373,13 +373,19 @@ $$(".project-card,.skill-row,#heroArtboard").forEach((surface) => {
       }
       frame = 0;
     });
-  });
-  surface.addEventListener("pointerleave", () => {
+  };
+  surface.addEventListener("pointermove", updateSurface);
+  if (surface.id === "heroArtboard") surface.addEventListener("pointerdown", updateSurface);
+  const resetSurface = () => {
     cancelAnimationFrame(frame);
     frame = 0;
     surface.style.setProperty("--tilt-x", "0deg");
     surface.style.setProperty("--tilt-y", "0deg");
-  });
+    surface.style.removeProperty("--mouse-x");
+    surface.style.removeProperty("--mouse-y");
+  };
+  ["pointerleave", "pointerup", "pointercancel", "lostpointercapture"].forEach(type => surface.addEventListener(type, resetSurface));
+  reducedMotion.addEventListener("change", resetSurface);
 });
 
 function updatePropertiesPanel() {

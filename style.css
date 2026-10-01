@@ -2614,7 +2614,7 @@ h1 { font-size:clamp(42px,4.45vw,72px); line-height:1.02; letter-spacing:-3px; }
 .portrait-art .artboard-back { inset:32px 3px 20px 25px; transform:rotate(5deg); border-radius:20px; }
 .hero-artboard.portrait-card { margin:0; inset:0 14px 12px 0; padding:0; border-radius:18px; transform:rotateX(var(--tilt-x)) rotateY(var(--tilt-y)); background:linear-gradient(145deg,rgba(var(--accent-rgb),.14),rgba(12,22,18,.28)); isolation:isolate; }
 .portrait-halo { position:absolute; width:90%; aspect-ratio:1; top:12%; left:5%; border-radius:50%; background:radial-gradient(circle,rgba(var(--accent-rgb),.25),transparent 70%); }
-.hero-portrait { display:block; position:absolute; inset:0; width:100%; height:100%; object-fit:contain; object-position:center bottom; filter:drop-shadow(0 12px 20px rgba(0,0,0,.22)); }
+.hero-portrait { display:block; position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center top; filter:drop-shadow(0 12px 20px rgba(0,0,0,.22)); }
 .portrait-card::before { z-index:2; opacity:.4; }
 .portrait-caption { position:absolute; bottom:14px; left:14px; right:14px; display:flex; justify-content:space-between; gap:12px; align-items:center; padding:13px 15px; border:1px solid rgba(255,255,255,.18); border-radius:9px; background:rgba(17,29,22,.68); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); color:#f1f3ed; font:500 11px var(--font-display); z-index:3; }
 .portrait-caption span:last-child { font:9px var(--font-mono); color:var(--accent); }
@@ -2622,3 +2622,6 @@ h1 { font-size:clamp(42px,4.45vw,72px); line-height:1.02; letter-spacing:-3px; }
 @media(max-width:760px) { .hero-layout { gap:26px; }.hero-art.portrait-art { height:320px; max-width:290px; margin-top:0; } }
 @media(prefers-reduced-motion:reduce) { .hero-artboard.portrait-card { transform:none !important; transition:none; } }
 @media(prefers-reduced-transparency:reduce) { .portrait-caption { background:#192b20; } }
+
+.portrait-card { touch-action:pan-y; user-select:none; -webkit-user-select:none; }
+.hero-portrait { pointer-events:none; transform:scale(1.025); transform-origin:center top; }

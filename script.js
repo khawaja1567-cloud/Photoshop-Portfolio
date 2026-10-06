@@ -312,7 +312,12 @@ function renderProject(index) {
   $('#dialogTitle').textContent = $('h3', button).childNodes[0].textContent;
   $('#dialogCategory').textContent = $('.project-meta>span', button).textContent;
   $('#dialogDescription').textContent = $('.project-body>p', button).textContent;
-  $('#dialogScope').replaceChildren(...projectDetails[index].map(detail => {
+  const details = button.dataset.details ? button.dataset.details.split('|') : (projectDetails[Number(button.dataset.project)] || []);
+  const behanceLink = $('.button-primary', projectDialog);
+  behanceLink.href = button.dataset.behance || 'https://www.behance.net/khawajajawad';
+  behanceLink.innerHTML = button.dataset.behance ? 'View full project on Behance <span>↗</span>' : 'View portfolio on Behance <span>↗</span>';
+  $('.preview-note', projectDialog).textContent = button.dataset.behance ? 'Original project cover from my Behance portfolio. Explore the full project on Behance.' : 'Project cover concept.';
+  $('#dialogScope').replaceChildren(...details.map(detail => {
     const item = document.createElement('li'); item.textContent = detail; return item;
   }));
   const available = projectButtons.filter(item => !item.closest('.project-card').hidden);

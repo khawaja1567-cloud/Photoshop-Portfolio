@@ -316,7 +316,7 @@ function renderProject(index) {
   const behanceLink = $('.button-primary', projectDialog);
   behanceLink.href = button.dataset.behance || 'https://www.behance.net/khawajajawad';
   behanceLink.innerHTML = button.dataset.behance ? 'View full project on Behance <span>↗</span>' : 'View portfolio on Behance <span>↗</span>';
-  $('.preview-note', projectDialog).textContent = button.dataset.behance ? 'Original project cover from my Behance portfolio. Explore the full project on Behance.' : 'Project cover concept.';
+  $('.preview-note', projectDialog).textContent = button.dataset.note || 'Project cover concept.';
   $('#dialogScope').replaceChildren(...details.map(detail => {
     const item = document.createElement('li'); item.textContent = detail; return item;
   }));

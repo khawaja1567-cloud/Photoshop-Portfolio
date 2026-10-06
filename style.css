@@ -2626,24 +2626,16 @@ h1 { font-size:clamp(42px,4.45vw,72px); line-height:1.02; letter-spacing:-3px; }
 .portrait-card { touch-action:pan-y; user-select:none; -webkit-user-select:none; }
 .hero-portrait { pointer-events:none; transform:scale(1.025); transform-origin:center top; }
 
-/* A quiet studio setting for the original Behance artwork. */
+/* Custom brand application photography. */
 .work-toolbar { flex-wrap:wrap; gap:14px; }
 .project-filters { flex-wrap:wrap; }
-.project-art.behance-art { height:auto; aspect-ratio:1.12; padding:22px; display:flex; align-items:center; justify-content:center; isolation:isolate; background:radial-gradient(ellipse at 20% 10%,#edf0e5,#c0c8ba 78%); color:#29372e; }
-.behance-art::before { content:""; position:absolute; inset:0; z-index:-1; background:linear-gradient(135deg,#ffffff45,transparent 45%,#00000018); }
-.behance-art.studio-ink { background:radial-gradient(ellipse at 25% 10%,#444b44,#171d18 85%); color:#e3eadb; }
-.behance-art.studio-teal { background:radial-gradient(ellipse at 25% 10%,#cce2dc,#799e94 85%); }
-.behance-art.studio-blue { background:radial-gradient(ellipse at 25% 10%,#d9e6ef,#9cb2c6 85%); }
-.studio-label,.studio-caption { position:absolute; left:22px; right:22px; font:8px var(--font-mono); letter-spacing:1.3px; }
-.studio-label { top:18px; opacity:.75; }
-.studio-caption { bottom:17px; display:flex; justify-content:space-between; gap:8px; text-transform:uppercase; letter-spacing:.7px; }
-.studio-caption>span { opacity:.65; }
-.artwork-mount { width:88%; transform:perspective(900px) rotateX(5deg) rotateY(-6deg) rotateZ(-2deg); box-shadow:12px 22px 22px -14px #0c191e88,0 2px 4px #0003; transition:transform .55s var(--ease),box-shadow .55s var(--ease); background:#fff; line-height:0; }
-.artwork-mount img { display:block; width:100%; height:auto; }
-.behance-card:nth-child(even) .artwork-mount { transform:perspective(900px) rotateX(5deg) rotateY(6deg) rotateZ(2deg); }
-@media(hover:hover) { .behance-card:hover .artwork-mount { transform:perspective(900px) rotateX(0) rotateY(0) rotateZ(0) translateY(-3px); box-shadow:6px 28px 30px -18px #0c191e88; } }
-.behance-card:focus-within .artwork-mount { transform:none; }
-#dialogArt .project-art.behance-art { height:auto; aspect-ratio:1.25; padding:48px 30px; }
-#dialogArt .artwork-mount { max-width:650px; transform:none; }
-@media(max-width:480px) { .project-art.behance-art { padding:20px; }.studio-caption,.studio-label { font-size:7px; left:16px; right:16px; }#dialogArt .project-art.behance-art { aspect-ratio:1; padding:38px 18px; }.project-filters .filter { padding:9px 10px; } }
-@media(prefers-reduced-motion:reduce) { .artwork-mount,.behance-card:nth-child(even) .artwork-mount,.behance-card:hover .artwork-mount { transform:none; transition:none; } }
+.project-art.brand-scene { height:auto; aspect-ratio:3/2; padding:0; display:block; background:#e8e5df; }
+.brand-scene img { display:block; width:100%; height:100%; object-fit:contain; transition:transform .6s var(--ease); }
+.scene-open { position:absolute; right:16px; bottom:16px; background:rgba(15,25,23,.85); backdrop-filter:blur(12px); color:#fff; border:1px solid #ffffff38; padding:10px 13px; border-radius:30px; font:10px var(--font-mono); opacity:0; transform:translateY(6px); transition:opacity .25s,transform .25s; }
+.brand-card:hover .scene-open,.brand-card:focus-within .scene-open { opacity:1; transform:none; }
+.project-card:hover .brand-scene { filter:none; }
+#dialogArt .project-art.brand-scene { height:auto; aspect-ratio:3/2; padding:0; }
+#dialogArt .scene-open { display:none; }
+@media(hover:hover) { .brand-card:hover .brand-scene img { transform:scale(1.025); } }
+@media(hover:none) { .scene-open { opacity:1; transform:none; font-size:9px; padding:8px 11px; } }
+@media(prefers-reduced-motion:reduce) { .brand-scene img,.scene-open { transition:none; transform:none!important; } }

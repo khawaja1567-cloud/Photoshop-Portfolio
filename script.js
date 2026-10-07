@@ -303,6 +303,7 @@ const projectDetails = [
   ['Presentation concept', 'Black-and-gold theme', 'Luxury visual direction'],
   ['18-slide academic deck', 'Full-bleed dark layouts', 'Original copy preserved']
 ];
+const temarArtwork = [{"src": "assets/temar/post-01.webp", "title": "Heart health awareness · Urdu"}, {"src": "assets/temar/post-02.webp", "title": "Joint pain & mobility"}, {"src": "assets/temar/post-03.webp", "title": "Cardiology services"}, {"src": "assets/temar/post-04.webp", "title": "Dental care offer"}, {"src": "assets/temar/post-05.webp", "title": "Mental health consultation · Urdu"}, {"src": "assets/temar/post-06.webp", "title": "Liver health awareness"}, {"src": "assets/temar/post-07.webp", "title": "Anxiety & resilience"}, {"src": "assets/temar/post-08.webp", "title": "Heart-to-heart consultation"}, {"src": "assets/temar/post-09.webp", "title": "Cardiac emergency awareness"}, {"src": "assets/temar/post-10.webp", "title": "Dental care campaign"}, {"src": "assets/temar/post-11.webp", "title": "Diabetes screening"}, {"src": "assets/temar/post-12.webp", "title": "Mental health campaign · Urdu"}, {"src": "assets/temar/post-13.webp", "title": "Surgical care services"}, {"src": "assets/temar/post-14.webp", "title": "Women’s health services"}, {"src": "assets/temar/post-15.webp", "title": "Gynaecology awareness"}, {"src": "assets/temar/post-16.webp", "title": "Heart disease awareness"}, {"src": "assets/temar/post-17.webp", "title": "Laboratory & radiology offer"}, {"src": "assets/temar/post-18.webp", "title": "Mental health support"}, {"src": "assets/temar/post-19.webp", "title": "Dental scaling & polishing"}, {"src": "assets/temar/post-20.webp", "title": "Prostate health awareness"}];
 const projectButtons = $$('.project-open');
 function renderProject(index) {
   activeProject = index;
@@ -320,6 +321,7 @@ function renderProject(index) {
   $('#dialogScope').replaceChildren(...details.map(detail => {
     const item = document.createElement('li'); item.textContent = detail; return item;
   }));
+  renderProjectGallery(button.dataset.gallery);
   const available = projectButtons.filter(item => !item.closest('.project-card').hidden);
   $('#projectPosition').textContent = `${available.indexOf(button) + 1} / ${available.length}`;
   $('#previousProject').disabled = $('#nextProject').disabled = available.length < 2;
@@ -914,3 +916,50 @@ if (location.hash.startsWith("#section-"))
 window.addEventListener("hashchange", () =>
   navigateTo(location.hash.slice(1), false),
 );
+
+// A single project collection, with a separate accessible artwork viewer.
+const artworkDialog = $('#artworkDialog');
+let activeArtwork = 0;
+let lastArtworkOpener;
+function renderProjectGallery(collection) {
+  const gallery = $('#projectGallery');
+  const grid = $('#galleryGrid');
+  gallery.hidden = collection !== 'temar';
+  projectDialog.classList.toggle('has-gallery', !gallery.hidden);
+  grid.replaceChildren();
+  if (gallery.hidden) return;
+  temarArtwork.forEach((artwork,index) => {
+    const figure = document.createElement('figure');
+    const button = document.createElement('button');
+    button.type = 'button'; button.className = 'gallery-open';
+    button.setAttribute('aria-label', `Enlarge design ${index+1}: ${artwork.title}`);
+    const img = document.createElement('img');
+    img.src = artwork.src; img.alt = artwork.title;
+    img.width = img.height = 1600; img.loading = 'lazy'; img.decoding = 'async';
+    button.append(img);
+    button.addEventListener('click', () => {
+      lastArtworkOpener = button; showArtwork(index); artworkDialog.showModal();
+    });
+    const caption = document.createElement('figcaption');
+    caption.textContent = `${String(index+1).padStart(2,'0')} / ${artwork.title}`;
+    figure.append(button,caption); grid.append(figure);
+  });
+}
+function showArtwork(index) {
+  activeArtwork = (index + temarArtwork.length) % temarArtwork.length;
+  const artwork = temarArtwork[activeArtwork];
+  $('#artworkTitle').textContent = artwork.title;
+  $('#artworkImage').src = artwork.src; $('#artworkImage').alt = artwork.title;
+  $('#artworkPosition').textContent = `${activeArtwork+1} / ${temarArtwork.length}`;
+  artworkDialog.scrollTop = 0;
+}
+$('#closeArtwork').addEventListener('click', () => artworkDialog.close());
+$('#previousArtwork').addEventListener('click', () => showArtwork(activeArtwork-1));
+$('#nextArtwork').addEventListener('click', () => showArtwork(activeArtwork+1));
+artworkDialog.addEventListener('keydown', event => {
+  if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+    event.preventDefault(); event.stopPropagation();
+    showArtwork(activeArtwork + (event.key === 'ArrowRight' ? 1 : -1));
+  }
+});
+artworkDialog.addEventListener('close', () => lastArtworkOpener?.focus({preventScroll:true}));

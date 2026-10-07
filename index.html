@@ -358,7 +358,7 @@
                       data-filter="all"
                       aria-pressed="true"
                     >
-                      All work <span>08</span></button
+                      All work <span>09</span></button
                     ><button
                       class="filter"
                       data-filter="presentations"
@@ -371,13 +371,14 @@
                       aria-pressed="false"
                     >
                       Brand identity
-                    </button>
+                    </button><button class="filter" data-filter="social" aria-pressed="false">Social media</button>
                   </div>
                   <span class="micro" id="projectCount" role="status"
-                    >8 PROJECTS</span
-                  >
+                    >9 PROJECTS</span>
                 </div>
                 <div class="project-grid" id="projectGrid">
+<article class="project-card glass brand-card temar-card" data-category="social"><button class="project-open" data-gallery="temar" data-details="20 social media designs|Healthcare campaigns|English & Urdu creatives|Temar Medical & Cardiac Hospital" data-note="Selected campaign artwork. Explore all 20 designs below." data-behance="https://www.behance.net/gallery/197372995/Temar-Diagnostics-Medical-And-Cardiac-Hospital" aria-label="View Temar social media — 20 designs">
+<div class="project-art brand-scene"><img src="assets/temar/hero.webp" alt="Temar campaign mockup featuring cardiology, dental and mental health designs" width="1200" height="800" loading="lazy" decoding="async"><span class="scene-open" aria-hidden="true">View 20 designs ↗</span></div><div class="project-body"><div class="project-meta"><span>Social media design</span><span>20 DESIGNS</span></div><h3>Temar · Social media<span aria-hidden="true">↗</span></h3><p>A collection of healthcare campaigns, service promotions and awareness posts for Temar Medical &amp; Cardiac Hospital.</p></div></button></article>
 <article class="project-card glass brand-card" data-category="identity"><button class="project-open" data-details="Packaging concept|Takeaway bag &amp; catering box|Food container|Black &amp; ivory palette" data-note="Brand application concepts developed around the original logo." data-behance="https://www.behance.net/gallery/207649625/Logo-Designing" aria-label="View Man-O-Salwa branding">
  <div class="project-art brand-scene"><img src="assets/brand-mockups/man-o-salwa.webp" alt="Man-O-Salwa — Takeaway bag &amp; catering box mockup" width="1536" height="1024" loading="lazy" decoding="async"><span class="scene-open" aria-hidden="true">Explore identity ↗</span></div>
  <div class="project-body"><div class="project-meta"><span>Food &amp; catering</span><span>IDENTITY / 01</span></div><h3>Man-O-Salwa<span aria-hidden="true">↗</span></h3><p>A monochrome identity brought to life across takeaway bags, catering boxes and food containers.</p></div></button></article>
@@ -1256,9 +1257,11 @@
           >View portfolio on Behance <span>↗</span></a
         >
         <a class="dialog-contact" href="mailto:khawaja1567@gmail.com">Discuss a similar project ↗</a>
+        <section id="projectGallery" class="project-gallery" aria-labelledby="galleryTitle" hidden><div class="gallery-heading"><h3 id="galleryTitle">Campaign collection</h3><span class="micro">20 DESIGNS</span></div><p class="gallery-hint">Select a design to view it larger.</p><div id="galleryGrid" class="gallery-grid"></div></section>
         <div class="project-pager"><button id="previousProject" aria-label="Previous project">← Previous</button><span id="projectPosition" aria-live="polite"></span><button id="nextProject" aria-label="Next project">Next →</button></div>
       </div>
     </dialog>
+    <dialog id="artworkDialog" class="artwork-dialog" aria-labelledby="artworkTitle"><div class="artwork-toolbar"><h2 id="artworkTitle"></h2><button id="closeArtwork" aria-label="Close enlarged design">×</button></div><img id="artworkImage" alt="" width="1600" height="1600"><div class="artwork-controls"><button id="previousArtwork" aria-label="Previous design">← Previous</button><span id="artworkPosition" aria-live="polite"></span><button id="nextArtwork" aria-label="Next design">Next →</button></div></dialog>
     <div class="toast glass" id="toast" role="status" aria-live="polite"></div>
   </body>
 </html>

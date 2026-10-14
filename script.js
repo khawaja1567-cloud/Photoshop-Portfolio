@@ -7,7 +7,7 @@ const viewport = $("#viewport");
 const pageSections = $("#pageSections");
 const root = document.documentElement;
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
-const mobile = matchMedia("(max-width: 760px)");
+const mobile = matchMedia("(max-width: 1120px)");
 const finePointer = matchMedia("(hover: hover) and (pointer: fine)");
 const statusMsg = $("#statusMsg");
 const canvas = $("#doodleCanvas");
@@ -111,7 +111,7 @@ setTheme(
     ? readPreference("theme")
     : "sage",
 );
-setFrost(readPreference("frost"));
+setFrost(readPreference("frost") ?? 20);
 
 // Section navigation and layer visibility use real links and buttons.
 const sectionEls = $$(".page-section");
@@ -200,6 +200,9 @@ function updateActiveSection(id) {
 }
 let scrollFrame = 0;
 function updateScrollSpy() {
+  const scrollRange = viewport.scrollHeight - viewport.clientHeight;
+  const progress = scrollRange > 0 ? Math.max(0, Math.min(100, viewport.scrollTop / scrollRange * 100)) : 0;
+  root.style.setProperty("--read-progress", `${progress.toFixed(1)}%`);
   const visible = sectionEls.filter(
     (section) => !section.classList.contains("section-hidden"),
   );
@@ -275,27 +278,72 @@ mobileOverlay.addEventListener("click", () => closeMobilePanels());
 mobile.addEventListener("change", () => closeMobilePanels());
 closeMobilePanels(false);
 
-// Filterable project cards and a native dialog (focus trap, Escape, focus return).
+// Curated project filters retain collection labels and announce the visible count.
 const cards = $$(".project-card");
-$$(".filter").forEach((button) =>
-  button.addEventListener("click", () => {
-    const filter = button.dataset.filter;
-    $$(".filter").forEach((item) => {
-      const selected = item === button;
-      item.classList.toggle("active", selected);
-      item.setAttribute("aria-pressed", String(selected));
-    });
-    cards.forEach((card) => {
-      card.hidden = filter !== "all" && card.dataset.category !== filter;
-    });
-    const count = cards.filter((card) => !card.hidden).length;
-    $("#projectCount").textContent =
-      `${count} PROJECT${count === 1 ? "" : "S"}`;
-  }),
-);
+let activeFilter = "all";
+function filterProjects(filter) {
+  activeFilter = filter;
+  $$(".filter").forEach(button => {
+    const selected = button.dataset.filter === filter;
+    button.classList.toggle("active", selected);
+    button.setAttribute("aria-pressed", String(selected));
+  });
+  cards.forEach(card => { card.hidden = filter !== "all" && card.dataset.category !== filter; });
+  const count = cards.filter(card => !card.hidden).length;
+  $("#projectCount").textContent = `${count} PROJECT${count === 1 ? "" : "S"}`;
+  $('[data-collection="identity"]').hidden = !cards.some(card => card.classList.contains("brand-card") && !card.classList.contains("temar-card") && !card.hidden);
+  $('[data-collection="studies"]').hidden = !cards.some(card => !card.classList.contains("brand-card") && !card.hidden);
+}
+$('.filter[data-filter="all"] span').textContent = String(cards.length).padStart(2, "0");
+$$(".filter").forEach(button => button.addEventListener("click", () => filterProjects(button.dataset.filter)));
+$$("[data-jump-filter]").forEach(button => button.addEventListener("click", () => {
+  filterProjects(button.dataset.jumpFilter);
+  navigateTo("section-work");
+}));
+filterProjects("all");
+
 const projectDialog = $("#projectDialog");
 let lastProjectOpener;
 let activeProject = 0;
+let routeDrivenClose = false;
+const caseNarratives = {
+  "temar": {
+    brief: "Bring healthcare campaigns, service promotions, and patient awareness into one recognizable visual system for Temar Medical & Cardiac Hospital.",
+    direction: "A consistent cyan, orange, and red palette connects the collection. Clear information hierarchy and English and Urdu typography give each subject its own space within the same brand language."
+  },
+  "man-o-salwa": {
+    brief: "Explore how the original Man-O-Salwa identity can carry across food and catering touchpoints.",
+    direction: "A restrained black-and-ivory palette keeps the mark central. The application concept brings bags, boxes, and food containers together as a coordinated family."
+  },
+  "stretch-flow": {
+    brief: "Build a coordinated brand application concept for a physiotherapy and movement identity.",
+    direction: "Navy and cyan connect clinic stationery, therapist apparel, and business cards. The presentation explores how a movement-led mark translates into everyday brand materials."
+  },
+  "zaabeel": {
+    brief: "Explore a distinctive diagnostic identity across stationery and report presentation.",
+    direction: "A calligraphic mark anchors the concept. Cyan and deep red create a coherent system across report folders, sleeves, business cards, and a pen."
+  },
+  "meridian-bay": {
+    brief: "Structure an investor-facing real estate pitch around a clear narrative and a consistent layout system.",
+    direction: "The cover study explores architectural framing and deliberate type hierarchy. Layout and imagery direction support the project narrative; the cover shown here is a concept preview."
+  },
+  "lovaiceland": {
+    brief: "Develop an eight-slide pitch deck for a luxury botanical wellness and skincare brand.",
+    direction: "Dark surfaces, gold accents, and cohesive imagery establish the presentation's visual language. This typographic cover is a concept preview of the deck's direction."
+  },
+  "avora": {
+    brief: "Create a refined identity direction for a premium padel club.",
+    direction: "Copper tones, a line-art mark, and Cinzel typography shape the identity. The cover study presents that direction through a restrained sporting composition."
+  },
+  "rolls-royce": {
+    brief: "Explore a luxury presentation theme as an independent concept study.",
+    direction: "A black-and-gold palette and generous negative space study restraint, materiality, and quiet confidence. This is a presentation concept, with a typographic cover preview."
+  },
+  "academic-deck": {
+    brief: "Redesign an eighteen-slide academic presentation while preserving the original copy.",
+    direction: "Full-bleed dark panels and a richer layout hierarchy organize the material. The cover concept introduces the visual direction without presenting it as an actual slide screenshot."
+  }
+};
 const projectDetails = [
   ['Real estate pitch deck', 'Layout system', 'Imagery direction', 'Investor-facing narrative'],
   ['8-slide pitch deck', 'Botanical wellness & skincare', 'Dark gold palette'],
@@ -305,12 +353,32 @@ const projectDetails = [
 ];
 const temarArtwork = [{"src": "assets/temar/post-01.webp", "title": "Heart health awareness · Urdu"}, {"src": "assets/temar/post-02.webp", "title": "Joint pain & mobility"}, {"src": "assets/temar/post-03.webp", "title": "Cardiology services"}, {"src": "assets/temar/post-04.webp", "title": "Dental care offer"}, {"src": "assets/temar/post-05.webp", "title": "Mental health consultation · Urdu"}, {"src": "assets/temar/post-06.webp", "title": "Liver health awareness"}, {"src": "assets/temar/post-07.webp", "title": "Anxiety & resilience"}, {"src": "assets/temar/post-08.webp", "title": "Heart-to-heart consultation"}, {"src": "assets/temar/post-09.webp", "title": "Cardiac emergency awareness"}, {"src": "assets/temar/post-10.webp", "title": "Dental care campaign"}, {"src": "assets/temar/post-11.webp", "title": "Diabetes screening"}, {"src": "assets/temar/post-12.webp", "title": "Mental health campaign · Urdu"}, {"src": "assets/temar/post-13.webp", "title": "Surgical care services"}, {"src": "assets/temar/post-14.webp", "title": "Women’s health services"}, {"src": "assets/temar/post-15.webp", "title": "Gynaecology awareness"}, {"src": "assets/temar/post-16.webp", "title": "Heart disease awareness"}, {"src": "assets/temar/post-17.webp", "title": "Laboratory & radiology offer"}, {"src": "assets/temar/post-18.webp", "title": "Mental health support"}, {"src": "assets/temar/post-19.webp", "title": "Dental scaling & polishing"}, {"src": "assets/temar/post-20.webp", "title": "Prostate health awareness"}];
 const projectButtons = $$('.project-open');
+const projectSlug = button => button.dataset.case || button.closest('.project-card').dataset.case;
+function setProjectRoute(index, push = false) {
+  const hash = `#project-${projectSlug(projectButtons[index])}`;
+  if (location.hash === hash) return;
+  try { history[push ? 'pushState' : 'replaceState'](null, '', hash); } catch { /* Local file mode. */ }
+}
+function openProject(index, updateRoute = true) {
+  const button = projectButtons[index];
+  if (!button) return;
+  if (button.closest('.project-card').hidden) filterProjects('all');
+  closeMobilePanels(false);
+  lastProjectOpener = button;
+  renderProject(index);
+  if (!projectDialog.open) projectDialog.showModal();
+  if (updateRoute) setProjectRoute(index, true);
+}
+
 function renderProject(index) {
   activeProject = index;
   const button = projectButtons[index];
-  lastProjectOpener = button;
+  const narrative = caseNarratives[projectSlug(button)];
+  $('#caseBrief').textContent = narrative.brief;
+  $('#caseDirection').textContent = narrative.direction;
+  $('#caseHeaderLabel').textContent = `PROJECT / ${$('.project-meta>span', button).textContent.toUpperCase()}`;
   $('#dialogArt').replaceChildren($('.project-art', button).cloneNode(true));
-  $('#dialogTitle').textContent = $('h3', button).childNodes[0].textContent;
+  $('#dialogTitle').textContent = [...$('h3', button).childNodes].filter(node => node.nodeType === Node.TEXT_NODE).map(node => node.textContent).join('').trim();
   $('#dialogCategory').textContent = $('.project-meta>span', button).textContent;
   $('#dialogDescription').textContent = $('.project-body>p', button).textContent;
   const details = button.dataset.details ? button.dataset.details.split('|') : (projectDetails[Number(button.dataset.project)] || []);
@@ -330,10 +398,13 @@ function renderProject(index) {
 function stepProject(direction) {
   const available = projectButtons.map((button,index) => ({button,index})).filter(({button}) => !button.closest('.project-card').hidden);
   const current = available.findIndex(({index}) => index === activeProject);
-  if (available.length > 1) renderProject(available[(current + direction + available.length) % available.length].index);
+  if (available.length > 1) {
+    const index = available[(current + direction + available.length) % available.length].index;
+    renderProject(index); setProjectRoute(index);
+  }
 }
 projectButtons.forEach((button,index) => button.addEventListener('click', () => {
-  renderProject(index); projectDialog.showModal();
+  openProject(index);
 }));
 $('#previousProject').addEventListener('click', () => stepProject(-1));
 $('#nextProject').addEventListener('click', () => stepProject(1));
@@ -354,9 +425,21 @@ projectDialog.addEventListener("click", (event) => {
   )
     projectDialog.close();
 });
-projectDialog.addEventListener("close", () =>
-  lastProjectOpener?.focus({ preventScroll: true }),
-);
+projectDialog.addEventListener("close", () => {
+  if (!routeDrivenClose && location.hash.startsWith('#project-')) {
+    try { history.replaceState(null, '', '#section-work'); } catch { /* Local file mode. */ }
+  }
+  lastProjectOpener?.focus({ preventScroll: true });
+});
+$('#copyProjectLink').addEventListener('click', async () => {
+  const link = new URL(location.href); link.hash = `project-${projectSlug(projectButtons[activeProject])}`;
+  try {
+    await navigator.clipboard.writeText(link.href);
+    announce('Project link copied.', true);
+  } catch {
+    announce('The address bar contains this project link. Select it to copy.', true);
+  }
+});
 
 // Pointer highlights are local, inexpensive and disabled for touch/reduced motion.
 $$(".project-card,.skill-row,#heroArtboard").forEach((surface) => {
@@ -836,7 +919,7 @@ $("#resetZoomBtn").addEventListener("click", () => applyZoom(100));
 
 // Shortcuts only act outside editors and form fields. Native dialog behavior wins.
 document.addEventListener("keydown", (event) => {
-  if (projectDialog.open) return;
+  if (projectDialog.open || artworkDialog.open) return;
   if (activeDrawer && event.key === "Escape") {
     event.preventDefault();
     closeMobilePanels();
@@ -891,7 +974,7 @@ document.addEventListener("keydown", (event) => {
   }
 });
 $("#copyEmailBtn").addEventListener("click", async () => {
-  const email = "khawaja1567@gmail.com";
+  const email = "khawaja1555@gmail.com";
   try {
     if (!navigator.clipboard || !window.isSecureContext)
       throw new Error("Clipboard unavailable");
@@ -911,11 +994,7 @@ setTool("move");
 setCurrentColor(currentColor, null, false);
 syncCanvasUI();
 updateScrollSpy();
-if (location.hash.startsWith("#section-"))
-  requestAnimationFrame(() => navigateTo(location.hash.slice(1), false));
-window.addEventListener("hashchange", () =>
-  navigateTo(location.hash.slice(1), false),
-);
+
 
 // A single project collection, with a separate accessible artwork viewer.
 const artworkDialog = $('#artworkDialog');
@@ -952,6 +1031,9 @@ function showArtwork(index) {
   $('#artworkImage').src = artwork.src; $('#artworkImage').alt = artwork.title;
   $('#artworkPosition').textContent = `${activeArtwork+1} / ${temarArtwork.length}`;
   artworkDialog.scrollTop = 0;
+  const next = new Image(); next.src = temarArtwork[(activeArtwork + 1) % temarArtwork.length].src;
+  const image = $('#artworkImage');
+  image.setAttribute('aria-label', `Design ${activeArtwork + 1} of ${temarArtwork.length}: ${artwork.title}`);
 }
 $('#closeArtwork').addEventListener('click', () => artworkDialog.close());
 $('#previousArtwork').addEventListener('click', () => showArtwork(activeArtwork-1));
@@ -963,3 +1045,38 @@ artworkDialog.addEventListener('keydown', event => {
   }
 });
 artworkDialog.addEventListener('close', () => lastArtworkOpener?.focus({preventScroll:true}));
+
+// Pointer swipes complement buttons and keyboard navigation in the artwork viewer.
+let swipeStart = null;
+$('#artworkImage').addEventListener('pointerdown', event => {
+  if (event.pointerType !== 'touch') return;
+  swipeStart = { x: event.clientX, y: event.clientY, id: event.pointerId };
+});
+$('#artworkImage').addEventListener('pointerup', event => {
+  if (!swipeStart || event.pointerId !== swipeStart.id) return;
+  const dx = event.clientX - swipeStart.x, dy = event.clientY - swipeStart.y;
+  if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) showArtwork(activeArtwork + (dx < 0 ? 1 : -1));
+  swipeStart = null;
+});
+$('#artworkImage').addEventListener('pointercancel', () => { swipeStart = null; });
+artworkDialog.addEventListener('click', event => {
+  if (event.target !== artworkDialog) return;
+  const rect = artworkDialog.getBoundingClientRect();
+  if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) artworkDialog.close();
+});
+function syncProjectRoute() {
+  const slug = location.hash.startsWith('#project-') ? location.hash.slice(9) : null;
+  const index = projectButtons.findIndex(button => projectSlug(button) === slug);
+  if (index >= 0) {
+    navigateTo('section-work', false); openProject(index, false);
+  } else {
+    routeDrivenClose = true;
+    if (artworkDialog.open) artworkDialog.close();
+    if (projectDialog.open) projectDialog.close();
+    routeDrivenClose = false;
+    if (location.hash.startsWith('#section-')) navigateTo(location.hash.slice(1), false);
+  }
+}
+window.addEventListener('hashchange', syncProjectRoute);
+window.addEventListener('popstate', syncProjectRoute);
+requestAnimationFrame(syncProjectRoute);

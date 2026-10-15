@@ -307,6 +307,7 @@ let lastProjectOpener;
 let activeProject = 0;
 let routeDrivenClose = false;
 const caseNarratives = {
+  vascular: {brief: 'Present specialist vascular care through a coordinated series of clinic services, patient education and awareness campaigns.', direction: 'A consistent blue-and-white palette, clear information hierarchy and English and Urdu layouts connect the collection across social formats.'},
   "temar": {
     brief: "Bring healthcare campaigns, service promotions, and patient awareness into one recognizable visual system for Temar Medical & Cardiac Hospital.",
     direction: "A consistent cyan, orange, and red palette connects the collection. Clear information hierarchy and English and Urdu typography give each subject its own space within the same brand language."
@@ -352,6 +353,8 @@ const projectDetails = [
   ['18-slide academic deck', 'Full-bleed dark layouts', 'Original copy preserved']
 ];
 const temarArtwork = [{"src": "assets/temar/post-01.webp", "title": "Heart health awareness · Urdu"}, {"src": "assets/temar/post-02.webp", "title": "Joint pain & mobility"}, {"src": "assets/temar/post-03.webp", "title": "Cardiology services"}, {"src": "assets/temar/post-04.webp", "title": "Dental care offer"}, {"src": "assets/temar/post-05.webp", "title": "Mental health consultation · Urdu"}, {"src": "assets/temar/post-06.webp", "title": "Liver health awareness"}, {"src": "assets/temar/post-07.webp", "title": "Anxiety & resilience"}, {"src": "assets/temar/post-08.webp", "title": "Heart-to-heart consultation"}, {"src": "assets/temar/post-09.webp", "title": "Cardiac emergency awareness"}, {"src": "assets/temar/post-10.webp", "title": "Dental care campaign"}, {"src": "assets/temar/post-11.webp", "title": "Diabetes screening"}, {"src": "assets/temar/post-12.webp", "title": "Mental health campaign · Urdu"}, {"src": "assets/temar/post-13.webp", "title": "Surgical care services"}, {"src": "assets/temar/post-14.webp", "title": "Women’s health services"}, {"src": "assets/temar/post-15.webp", "title": "Gynaecology awareness"}, {"src": "assets/temar/post-16.webp", "title": "Heart disease awareness"}, {"src": "assets/temar/post-17.webp", "title": "Laboratory & radiology offer"}, {"src": "assets/temar/post-18.webp", "title": "Mental health support"}, {"src": "assets/temar/post-19.webp", "title": "Dental scaling & polishing"}, {"src": "assets/temar/post-20.webp", "title": "Prostate health awareness"}];
+const vascularArtwork = [{"src": "assets/vascular/post-01.webp", "title": "Clinic profile banner", "width": 1600, "height": 592}, {"src": "assets/vascular/post-02.webp", "title": "Eid greeting · version 1", "width": 1600, "height": 1600}, {"src": "assets/vascular/post-03.webp", "title": "Eid greeting · version 2", "width": 1600, "height": 1600}, {"src": "assets/vascular/post-04.webp", "title": "AV fistula screening & maintenance", "width": 1600, "height": 1600}, {"src": "assets/vascular/post-05.webp", "title": "Why an AV fistula is necessary", "width": 1600, "height": 1600}, {"src": "assets/vascular/post-06.webp", "title": "Defence Day greeting", "width": 1600, "height": 1600}, {"src": "assets/vascular/post-07.webp", "title": "AV fistula care · Urdu", "width": 1600, "height": 1600}, {"src": "assets/vascular/post-08.webp", "title": "No Tobacco Day", "width": 1600, "height": 1600}, {"src": "assets/vascular/post-09.webp", "title": "World Thyroid Day", "width": 1600, "height": 1600}, {"src": "assets/vascular/post-10.webp", "title": "Vascular care services", "width": 1600, "height": 1600}, {"src": "assets/vascular/post-11.webp", "title": "Labour Day greeting", "width": 1600, "height": 1600}, {"src": "assets/vascular/post-12.webp", "title": "Vascular access care", "width": 1600, "height": 1600}, {"src": "assets/vascular/post-13.webp", "title": "Varicose veins campaign", "width": 1600, "height": 1600}, {"src": "assets/vascular/post-14.webp", "title": "Varicose vein complications", "width": 1600, "height": 1600}, {"src": "assets/vascular/post-15.webp", "title": "Varicose vein treatment", "width": 1600, "height": 1600}];
+const projectCollections = {temar: temarArtwork, vascular: vascularArtwork};
 const projectButtons = $$('.project-open');
 const projectSlug = button => button.dataset.case || button.closest('.project-card').dataset.case;
 function setProjectRoute(index, push = false) {
@@ -999,22 +1002,26 @@ updateScrollSpy();
 // A single project collection, with a separate accessible artwork viewer.
 const artworkDialog = $('#artworkDialog');
 let activeArtwork = 0;
+let activeArtworkCollection = [];
 let lastArtworkOpener;
 function renderProjectGallery(collection) {
   const gallery = $('#projectGallery');
   const grid = $('#galleryGrid');
-  gallery.hidden = collection !== 'temar';
+  activeArtworkCollection = projectCollections[collection] || [];
+  gallery.hidden = activeArtworkCollection.length === 0;
+  $('#galleryCount').textContent = `${activeArtworkCollection.length} DESIGNS`;
   projectDialog.classList.toggle('has-gallery', !gallery.hidden);
   grid.replaceChildren();
   if (gallery.hidden) return;
-  temarArtwork.forEach((artwork,index) => {
+  activeArtworkCollection.forEach((artwork,index) => {
     const figure = document.createElement('figure');
+    if (artwork.width > artwork.height * 1.5) figure.className = 'gallery-wide';
     const button = document.createElement('button');
     button.type = 'button'; button.className = 'gallery-open';
     button.setAttribute('aria-label', `Enlarge design ${index+1}: ${artwork.title}`);
     const img = document.createElement('img');
     img.src = artwork.src; img.alt = artwork.title;
-    img.width = img.height = 1600; img.loading = 'lazy'; img.decoding = 'async';
+    img.width = artwork.width || 1600; img.height = artwork.height || 1600; img.loading = 'lazy'; img.decoding = 'async';
     button.append(img);
     button.addEventListener('click', () => {
       lastArtworkOpener = button; showArtwork(index); artworkDialog.showModal();
@@ -1025,15 +1032,16 @@ function renderProjectGallery(collection) {
   });
 }
 function showArtwork(index) {
-  activeArtwork = (index + temarArtwork.length) % temarArtwork.length;
-  const artwork = temarArtwork[activeArtwork];
+  activeArtwork = (index + activeArtworkCollection.length) % activeArtworkCollection.length;
+  const artwork = activeArtworkCollection[activeArtwork];
   $('#artworkTitle').textContent = artwork.title;
   $('#artworkImage').src = artwork.src; $('#artworkImage').alt = artwork.title;
-  $('#artworkPosition').textContent = `${activeArtwork+1} / ${temarArtwork.length}`;
+  $('#artworkImage').width = artwork.width || 1600; $('#artworkImage').height = artwork.height || 1600;
+  $('#artworkPosition').textContent = `${activeArtwork+1} / ${activeArtworkCollection.length}`;
   artworkDialog.scrollTop = 0;
-  const next = new Image(); next.src = temarArtwork[(activeArtwork + 1) % temarArtwork.length].src;
+  const next = new Image(); next.src = activeArtworkCollection[(activeArtwork + 1) % activeArtworkCollection.length].src;
   const image = $('#artworkImage');
-  image.setAttribute('aria-label', `Design ${activeArtwork + 1} of ${temarArtwork.length}: ${artwork.title}`);
+  image.setAttribute('aria-label', `Design ${activeArtwork + 1} of ${activeArtworkCollection.length}: ${artwork.title}`);
 }
 $('#closeArtwork').addEventListener('click', () => artworkDialog.close());
 $('#previousArtwork').addEventListener('click', () => showArtwork(activeArtwork-1));
@@ -1080,3 +1088,4 @@ function syncProjectRoute() {
 window.addEventListener('hashchange', syncProjectRoute);
 window.addEventListener('popstate', syncProjectRoute);
 requestAnimationFrame(syncProjectRoute);
+
